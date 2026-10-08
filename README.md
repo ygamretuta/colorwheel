@@ -9,7 +9,8 @@ Built with React (JSX), Vite, Tailwind and shadcn/ui, with BEM-named custom CSS 
 ```bash
 npm install
 npm run dev      # dev server on http://localhost:5173
-npm test         # Vitest
+npm test         # Vitest, once in the terminal
+npm run test:ui  # Vitest web view (watch mode); open the link it prints
 npm run build    # production build in dist/
 ```
 
