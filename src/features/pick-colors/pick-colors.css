@@ -1,0 +1,9 @@
+/* Keep scroll targets clear of the fixed Back/Next bar (64px) plus a margin. */
+.pick-colors__pairings, .pick-colors__end { scroll-margin-bottom: var(--space-11); }
+.pick-colors__end { height: 1px; }
+
+@media (min-width: 768px) {
+  .pick-colors { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); align-items: start; }
+  .pick-colors__pairings > .suggestions { margin-top: 0; }
+  .pick-colors__end { display: none; }
+}

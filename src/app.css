@@ -1,0 +1,14 @@
+.app { max-width: 64rem; margin: 0 auto; padding: var(--space-2) var(--space-2) calc(var(--space-10) + env(safe-area-inset-bottom)); }
+/* Visible heading only from tablet up; on phones the step title carries the space. */
+.app__title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.app__step { min-height: 0; }
+
+@media (min-width: 640px) {
+  .app { padding: var(--space-3) var(--space-2) var(--space-6); }
+  .app__title {
+    position: static; width: auto; height: auto; overflow: visible; clip-path: none;
+    margin-bottom: var(--space-1); font-size: 0.875rem; line-height: 1.25rem; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--muted-foreground);
+  }
+  .app__step { min-height: 50vh; }
+}

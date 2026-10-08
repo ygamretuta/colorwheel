@@ -1,0 +1,37 @@
+.swatches { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); padding: var(--space-1); }
+.swatches__item {
+  flex: 1 1 var(--space-9); min-height: var(--space-9); padding: var(--space-1); display: flex; align-items: flex-end; justify-content: center;
+  position: relative; border: 1px solid rgb(0 0 0 / 0.15); border-radius: var(--radius);
+}
+button.swatches__item { cursor: pointer; }
+/* Two states, two different cues: "active" = current base color (dark ring outside),
+   "selected" = chosen for the palette (check badge + inner white frame). They can combine.
+   The ring reaches 8px out (4px offset + 4px line), hence the 16px gaps and 8px padding. */
+.swatches__item--active { outline: 4px solid var(--foreground); outline-offset: 4px; }
+.swatches__item--selected { box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 4px rgb(0 0 0 / 0.5); }
+.swatches__item--selected::after {
+  content: '✓'; position: absolute; top: calc(var(--space-1) * -1); right: calc(var(--space-1) * -1);
+  display: grid; place-items: center; width: var(--space-3); height: var(--space-3);
+  border: 2px solid #fff; border-radius: 9999px;
+  background: var(--primary); color: var(--primary-foreground);
+  font-size: 0.8125rem; font-weight: 700; line-height: 1;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
+}
+.swatches__label { font-family: ui-monospace, monospace; font-size: 0.75rem; line-height: 1rem; }
+
+.swatches--compact { margin-top: var(--space-1); }
+.swatches--compact .swatches__item { min-height: var(--space-6); flex-basis: var(--space-7); }
+
+.swatches--chip { margin-top: 0; gap: var(--space-1); flex-wrap: nowrap; padding: 0; }
+.swatches--chip .swatches__item { flex: 0 0 var(--space-4); min-height: var(--space-4); padding: 0; border-radius: var(--space-1); }
+.swatches--chip .swatches__item--active { outline-width: 2px; outline-offset: 2px; } /* small chips: a slimmer ring that stays inside the 8px gap */
+.swatches--chip .swatches__label { display: none; }
+
+.swatches--tile { margin-top: var(--space-1); flex-wrap: nowrap; }
+.swatches--tile .swatches__item { flex: 1 1 0; min-width: 0; min-height: var(--space-6); padding: 0; }
+.swatches--tile .swatches__label { display: none; }
+
+@media (min-width: 640px) {
+  .swatches--compact .swatches__item { min-height: var(--space-8); }
+  .swatches--chip .swatches__item { flex-basis: var(--space-5); min-height: var(--space-5); }
+}

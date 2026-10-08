@@ -1,0 +1,11 @@
+.palette__empty { color: var(--muted-foreground); }
+.palette__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-1); margin-top: var(--space-2); }
+.palette__button { gap: var(--space-1); min-height: var(--control-height); }
+.palette__copy { display: contents; }
+
+/* Everything in the palette is selected, so the badge would only add noise. */
+.palette .swatches__item--selected::after { display: none; }
+
+@media (min-width: 640px) {
+  .palette__actions { display: flex; }
+}

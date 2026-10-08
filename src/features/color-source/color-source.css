@@ -1,0 +1,28 @@
+.source { margin-bottom: var(--space-2); }
+.source__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-1); margin-bottom: var(--space-2); }
+.source__actions > :nth-child(n + 4) { grid-column: 1 / -1; } /* Eyedropper (when supported) gets its own row; the hidden file input is child 2 */
+.source__button { min-height: var(--control-height); }
+.source__file { display: none; }
+.source__stage {
+  display: flex; align-items: center; justify-content: center;
+  border: 2px dashed var(--border); border-radius: var(--radius);
+  background: var(--muted); overflow: hidden;
+}
+.source__stage--empty { min-height: 12rem; }
+.source__hint { padding: var(--space-2); text-align: center; color: var(--muted-foreground); }
+.source__canvas { display: block; max-width: 100%; max-height: 8rem; cursor: crosshair; }
+.source__colors { display: grid; gap: var(--space-2); margin-top: var(--space-2); }
+.source__colors-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); }
+.source__colors-title { font-size: 0.875rem; line-height: 1.25rem; font-weight: 600; }
+.source__mode { gap: var(--space-1); min-height: var(--control-height); padding-inline: var(--space-1); }
+.source__legend { font-size: 0.75rem; line-height: 1rem; color: var(--muted-foreground); }
+.source__status { margin-top: var(--space-1); font-size: 0.875rem; line-height: 1.25rem; color: var(--muted-foreground); }
+.source__status:empty { display: none; }
+
+@media (min-width: 640px) {
+  .source__actions { display: flex; flex-wrap: wrap; }
+  .source__canvas { max-height: 16rem; }
+  .source__stage--empty { min-height: 16rem; }
+  .source__add { justify-self: start; }
+}
+@media (min-width: 1024px) { .source__canvas { max-height: 26rem; } }

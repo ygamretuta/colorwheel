@@ -1,0 +1,125 @@
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import { Button } from '@/shared/ui/button.jsx';
+import './color-source.css';
+import ExtractedColors from './ExtractedColors.jsx';
+import { extractPalette, readSmallImageData } from './extract.js';
+import { sampleCanvas, toCanvasPoint } from './sample.js';
+
+const MAX_SIDE = 1600;
+const PALETTE_SIZE = 6;
+const HAS_EYEDROPPER = typeof window !== 'undefined' && 'EyeDropper' in window;
+
+/**
+ * Image intake (file/camera, screen capture, paste, EyeDropper) with click-to-pick.
+ * Each loaded image is also analysed for its dominant colors, which can be tapped to
+ * use one as the base color (`onPick`) or be added to the palette, all or a selected few (`onAddAll(colors)`).
+ */
+export default function ImageSource({ hex, onPick, onAddAll }) {
+  const canvasRef = useRef(null);
+  const fileRef = useRef(null);
+  const [hasImage, setHasImage] = useState(false);
+  const [status, setStatus] = useState('');
+  const [extracted, setExtracted] = useState([]);
+  const [imageVersion, setImageVersion] = useState(0); // new image => fresh selection state
+
+  function drawImage(source, width, height) {
+    const canvas = canvasRef.current;
+    const scale = Math.min(1, MAX_SIDE / Math.max(width, height));
+    canvas.width = Math.round(width * scale);
+    canvas.height = Math.round(height * scale);
+    canvas.getContext('2d', { willReadFrequently: true }).drawImage(source, 0, 0, canvas.width, canvas.height);
+    setHasImage(true);
+    const pixels = readSmallImageData(canvas);
+    const colors = pixels ? extractPalette(pixels, PALETTE_SIZE) : [];
+    setExtracted(colors);
+    setImageVersion((version) => version + 1);
+    // The color row explains itself; only fall back to a hint when nothing could be extracted.
+    setStatus(colors.length > 0 ? '' : 'Tap the image to pick a color.');
+  }
+
+  async function loadBlob(blob) {
+    try {
+      const bitmap = await createImageBitmap(blob);
+      drawImage(bitmap, bitmap.width, bitmap.height);
+      bitmap.close?.();
+    } catch {
+      setStatus('That file could not be read as an image.');
+    }
+  }
+
+  async function captureScreen() {
+    if (!navigator.mediaDevices?.getDisplayMedia) {
+      setStatus('Screen capture is not supported in this browser. Paste a screenshot or upload an image instead.');
+      return;
+    }
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.muted = true;
+      await video.play();
+      drawImage(video, video.videoWidth, video.videoHeight);
+    } catch (error) {
+      setStatus(`Screen capture cancelled or blocked (${error.name}).`);
+    } finally {
+      stream?.getTracks().forEach((track) => track.stop());
+    }
+  }
+
+  async function useEyedropper() {
+    try {
+      const { sRGBHex } = await new window.EyeDropper().open();
+      onPick(sRGBHex);
+    } catch {
+      setStatus('Eyedropper cancelled.');
+    }
+  }
+
+  // An Effect Event always sees the latest loadBlob without re-subscribing the listener.
+  const onPaste = useEffectEvent((event) => {
+    const item = [...(event.clipboardData?.items ?? [])].find((entry) => entry.type.startsWith('image/'));
+    if (item) loadBlob(item.getAsFile());
+  });
+
+  useEffect(() => {
+    document.addEventListener('paste', onPaste);
+    return () => document.removeEventListener('paste', onPaste);
+  }, []);
+
+  function handleCanvasClick(event) {
+    const canvas = canvasRef.current;
+    const hex = sampleCanvas(canvas, toCanvasPoint(event, canvas.getBoundingClientRect(), canvas));
+    if (hex) onPick(hex);
+  }
+
+  return (
+    <div className="source">
+        <div className="source__actions">
+          <Button className="source__button" onClick={() => fileRef.current.click()}>Upload or take photo</Button>
+          <input
+            ref={fileRef}
+            className="source__file"
+            type="file"
+            accept="image/*"
+            data-testid="file"
+            onChange={(event) => {
+              const [file] = event.target.files;
+              if (file) loadBlob(file);
+              event.target.value = '';
+            }}
+          />
+          <Button className="source__button" onClick={captureScreen}>Capture screen</Button>
+          {HAS_EYEDROPPER && <Button className="source__button" variant="outline" onClick={useEyedropper}>Eyedropper</Button>}
+        </div>
+        <div className={`source__stage${hasImage ? '' : ' source__stage--empty'}`}>
+          {!hasImage && <p className="source__hint">Choose a source, or paste a screenshot (Ctrl/⌘+V).</p>}
+          <canvas ref={canvasRef} className="source__canvas" hidden={!hasImage} onClick={handleCanvasClick} />
+        </div>
+        {extracted.length > 0 && (
+          <ExtractedColors key={imageVersion} colors={extracted} activeHex={hex} onPick={onPick} onAdd={onAddAll} />
+        )}
+        <p className="source__status" role="status">{status}</p>
+    </div>
+  );
+}
