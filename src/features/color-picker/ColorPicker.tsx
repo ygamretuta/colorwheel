@@ -61,7 +61,10 @@ interface ColorPickerProps {
   onChange: (hex: string) => void;
 }
 
-/** Swatch that opens a color panel, plus a hex text field; `onChange` gets a normalized hex. */
+/**
+ * One field for the current color: a dot showing it, the hex text to type into, and a "Fine-tune" button that
+ * opens the slider panel. `onChange` gets a normalized hex.
+ */
 export default function ColorPicker({ hex, onChange }: ColorPickerProps) {
   const [draft, setDraft] = useState(hex);
   const [syncedHex, setSyncedHex] = useState(hex);
@@ -75,26 +78,8 @@ export default function ColorPicker({ hex, onChange }: ColorPickerProps) {
 
   return (
     <div className="color-picker">
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            className="color-picker__swatch"
-            style={{ backgroundColor: hex }}
-            aria-label={`Pick a color, currently ${hex}`}
-          />
-        </PopoverTrigger>
-        <PopoverContent className="color-panel__popover" align="start">
-          {/* Remounts on open so the sliders always start from the current color. */}
-          <SwatchPanel
-            hex={hex}
-            onSelect={(selected) => {
-              onChange(selected);
-              setOpen(false);
-            }}
-          />
-        </PopoverContent>
-      </Popover>
+      {/* The current color, shown once, as a dot: it is not a control, so nothing here competes with the swatches above. */}
+      <span className="color-picker__dot" style={{ backgroundColor: hex }} aria-hidden="true" />
       <Input
         className="color-picker__hex"
         value={draft}
@@ -108,6 +93,23 @@ export default function ColorPicker({ hex, onChange }: ColorPickerProps) {
         }}
         onBlur={() => setDraft(hex)}
       />
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button className="color-picker__tune" variant="ghost" size="sm" aria-label="Fine-tune color">
+            Fine-tune
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="color-panel__popover" align="end">
+          {/* Remounts on open so the sliders always start from the current color. */}
+          <SwatchPanel
+            hex={hex}
+            onSelect={(selected) => {
+              onChange(selected);
+              setOpen(false);
+            }}
+          />
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }

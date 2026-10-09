@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
@@ -371,6 +371,120 @@ describe('clicking the progress bar', () => {
     await userEvent.click(screen.getByText('Start over'));
     expect(bar(2).disabled).toBe(true);
     expect(bar(3).disabled).toBe(true);
+  });
+});
+
+describe('random colors on step 1', () => {
+  const randomRow = () => [...document.querySelectorAll<HTMLElement>('.source__random .swatches__item')].map((el) => el.dataset.hex!);
+  const field = () => screen.getByLabelText<HTMLInputElement>('Hex value');
+
+  it('shows a row of random colors as soon as the app loads', () => {
+    render(<App />);
+    expect(randomRow()).toHaveLength(6);
+    expect(new Set(randomRow()).size).toBe(6);
+    expect(screen.getByText('Or start from a color')).toBeTruthy();
+  });
+
+  it('makes the tapped color the base color', async () => {
+    render(<App />);
+    const target = randomRow()[3];
+    await userEvent.click(screen.getByTitle(`Use ${target}`));
+    expect(field().value).toBe(target);
+  });
+
+  it('builds the next step on the chosen color', async () => {
+    render(<App />);
+    const target = randomRow()[1];
+    await userEvent.click(screen.getByTitle(`Use ${target}`));
+    await userEvent.click(screen.getByText(/^Next: Pick your colors/));
+    expect(document.querySelector<HTMLElement>('.harmony .swatches__item')!.dataset.hex).toBe(target);
+    expect(stackColors()[0]).toBe(target);
+  });
+
+  it('marks the chosen color in the row, and moves the mark when another is chosen', async () => {
+    render(<App />);
+    const [first, second] = randomRow();
+    await userEvent.click(screen.getByTitle(`Use ${first}`));
+    expect([...document.querySelectorAll<HTMLElement>('.source__random .swatches__item--active')].map((el) => el.dataset.hex)).toEqual([first]);
+    await userEvent.click(screen.getByTitle(`Use ${second}`));
+    expect([...document.querySelectorAll<HTMLElement>('.source__random .swatches__item--active')].map((el) => el.dataset.hex)).toEqual([second]);
+  });
+
+  it('keeps the same random colors while you move between steps', async () => {
+    render(<App />);
+    const before = randomRow();
+    await userEvent.click(screen.getByText(/^Next: Pick your colors/));
+    await userEvent.click(screen.getByRole('button', { name: /^Step 1:/ }));
+    expect(randomRow()).toEqual(before);
+  });
+
+  it('draws a new set when you shuffle, without changing the chosen color', async () => {
+    render(<App />);
+    const before = randomRow();
+    const base = field().value;
+    await userEvent.click(screen.getByRole('button', { name: 'Shuffle random colors' }));
+    expect(randomRow()).not.toEqual(before);
+    expect(field().value).toBe(base);
+  });
+
+  it('gives a fresh set after Reset', async () => {
+    render(<App />);
+    const before = randomRow();
+    await userEvent.click(screen.getByRole('button', { name: 'Reset and start over' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Confirm reset' }));
+    expect(randomRow()).toHaveLength(6);
+    expect(randomRow()).not.toEqual(before);
+  });
+});
+
+describe('the color field on step 1', () => {
+  const css = (hex: string) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgb(${r}, ${g}, ${b})`;
+  };
+  const dot = () => document.querySelector<HTMLElement>('.color-picker__dot')!;
+  const field = () => screen.getByLabelText<HTMLInputElement>('Hex value');
+
+  it('shows the current color once next to the choices: a dot inside the field, no separate swatch', () => {
+    render(<App />);
+    expect(document.querySelector('.color-picker__swatch')).toBeNull();
+    expect(document.querySelectorAll('.color-picker__dot')).toHaveLength(1);
+    expect(dot().style.backgroundColor).toBe(css(field().value));
+  });
+
+  it('keeps the dot in step with a random swatch that is picked', async () => {
+    render(<App />);
+    const target = document.querySelectorAll<HTMLElement>('.source__random .swatches__item')[2].dataset.hex!;
+    await userEvent.click(screen.getByTitle(`Use ${target}`));
+    expect(field().value).toBe(target);
+    expect(dot().style.backgroundColor).toBe(css(target));
+  });
+
+  it('keeps the dot in step with typed text', async () => {
+    render(<App />);
+    await userEvent.clear(field());
+    await userEvent.type(field(), '#e91e63');
+    expect(dot().style.backgroundColor).toBe(css('#e91e63'));
+  });
+
+  it('opens the sliders from Fine-tune and applies the result to the field and the dot', async () => {
+    render(<App />);
+    await userEvent.click(screen.getByRole('button', { name: 'Fine-tune color' }));
+    fireEvent.change(screen.getByLabelText<HTMLInputElement>('Hue'), { target: { value: '0' } });
+    await userEvent.click(screen.getByText('Select'));
+    expect(field().value).toBe('#cc3333');
+    expect(dot().style.backgroundColor).toBe(css('#cc3333'));
+    expect(screen.queryByText('Select')).toBeNull();
+  });
+
+  it('still marks which random swatch is chosen, but never marks the dot as a choice', async () => {
+    render(<App />);
+    const [first] = [...document.querySelectorAll<HTMLElement>('.source__random .swatches__item')];
+    await userEvent.click(first);
+    expect(document.querySelectorAll('.source__random .swatches__item--active')).toHaveLength(1);
+    expect(dot().className).not.toMatch(/swatches/);
   });
 });
 
@@ -797,6 +911,41 @@ describe('App with colors picked from an image', () => {
       await pasteImage();
       await userEvent.click(bar(2));
       expect(document.querySelector<HTMLElement>('.harmony .swatches__item')!.dataset.hex).toBe('#cc8833');
+    });
+  });
+
+  describe('random colors and a loaded image', () => {
+    const randomRow = () => document.querySelectorAll('.source__random .swatches__item');
+
+    it('are replaced by the image\'s own colors once an image is loaded', async () => {
+      installFakeImage();
+      render(<App />);
+      expect(randomRow()).toHaveLength(6);
+      await pasteImage();
+      expect(randomRow()).toHaveLength(0);
+      expect(screen.queryByText('Or start from a color')).toBeNull();
+      expect(screen.getByText('Colors in this image')).toBeTruthy();
+    });
+
+    it('come back when the image has no colors to extract', async () => {
+      installFakeImage([[RED, 50]], 0); // fully transparent
+      render(<App />);
+      await pasteImage({ expectColors: false });
+      expect(randomRow()).toHaveLength(6);
+    });
+  });
+
+  describe('the color field with an image loaded', () => {
+    const css = (hex: string) => `rgb(${parseInt(hex.slice(1, 3), 16)}, ${parseInt(hex.slice(3, 5), 16)}, ${parseInt(hex.slice(5, 7), 16)})`;
+
+    it('stays in the same place, showing the image color as a dot and as text', async () => {
+      installFakeImage();
+      render(<App />);
+      await pasteImage();
+      expect(document.querySelectorAll('.color-picker')).toHaveLength(1);
+      expect(document.querySelector<HTMLElement>('.color-picker__dot')!.style.backgroundColor).toBe(css(RED));
+      expect(screen.getByLabelText<HTMLInputElement>('Hex value').value).toBe(RED);
+      expect(document.querySelector('.color-picker__swatch')).toBeNull();
     });
   });
 
