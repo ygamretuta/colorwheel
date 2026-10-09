@@ -1,7 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+
 import { hexToRgb } from '@/shared/color/convert';
+
 import ColorPicker from './ColorPicker';
 
 const openPanel = () => userEvent.click(screen.getByRole('button', { name: 'Fine-tune color' }));

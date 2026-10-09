@@ -1,10 +1,13 @@
-import type { AddResult } from './ExtractedColors';
-import { useEffect, useEffectEvent, useRef, useState } from 'react';
-import { Button } from '@/shared/ui/button';
 import './color-source.css';
+
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
+
+import { Button } from '@/shared/ui/button';
+
+import { extractPalette, readSmallImageData } from './extract';
+import type { AddResult } from './ExtractedColors';
 import ExtractedColors from './ExtractedColors';
 import RandomColors from './RandomColors';
-import { extractPalette, readSmallImageData } from './extract';
 import { sampleCanvas, toCanvasPoint } from './sample';
 
 const MAX_SIDE = 1600;

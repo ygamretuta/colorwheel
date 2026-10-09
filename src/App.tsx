@@ -1,28 +1,30 @@
-import { Activity, useState } from 'react';
-import type { AddResult } from '@/features/color-source/ExtractedColors';
-import type { HarmonyId } from '@/features/harmony/harmony';
-import type { PaletteState } from '@/features/palette/palette-state';
 import './app.css';
+
+import { Activity, useState } from 'react';
+
 import ColorPicker from '@/features/color-picker/ColorPicker';
+import type { AddResult } from '@/features/color-source/ExtractedColors';
 import ImageSource from '@/features/color-source/ImageSource';
-import PickColorsStep from '@/features/pick-colors/PickColorsStep';
 import ExampleGallery from '@/features/examples/ExampleGallery';
 import SixtyThirtyTen from '@/features/examples/SixtyThirtyTen';
-import Palette from '@/features/palette/Palette';
-import { StepHeader, StepNav } from '@/features/stepper/Stepper';
+import type { HarmonyId } from '@/features/harmony/harmony';
 import { generateHarmony } from '@/features/harmony/harmony';
-import { STEPS, clampStep } from '@/features/stepper/steps';
+import Palette from '@/features/palette/Palette';
+import type { PaletteState } from '@/features/palette/palette-state';
 import {
-  EMPTY_PALETTE,
   addPicks,
   applyAutoHarmony,
   choosePairing,
   clearPairing,
   dropAuto,
+  EMPTY_PALETTE,
   paletteColors,
   removeColor,
   togglePick,
 } from '@/features/palette/palette-state';
+import PickColorsStep from '@/features/pick-colors/PickColorsStep';
+import { StepHeader, StepNav } from '@/features/stepper/Stepper';
+import { clampStep, STEPS } from '@/features/stepper/steps';
 import { normalizeHex, normalizeHexes } from '@/shared/color/convert';
 
 const DEFAULT_HEX = '#3366cc';

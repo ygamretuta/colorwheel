@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { STEPS, canVisit, clampStep } from './steps';
+
+import { canVisit, clampStep, STEPS } from './steps';
 
 describe('steps', () => {
   it('clamps navigation inside the step range', () => {

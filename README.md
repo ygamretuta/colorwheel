@@ -25,7 +25,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs `npm ci`, `npm run format:check
 
 ## Formatting
 
-Prettier owns formatting (`.prettierrc.json`: 100 columns, single quotes, trailing commas), so nobody has to think about it in review. Run `npm run format` before committing; CI fails if a file isn't formatted. ESLint doesn't check formatting (`eslint-config-prettier` switches off anything that would conflict). Prettier doesn't rewrap comments, so keep comments within 100 columns by hand. After `npx shadcn add`, run `npm run format` to bring the generated files in line.
+Prettier owns formatting (`.prettierrc.json`: 100 columns, single quotes, trailing commas), so nobody has to think about it in review. Run `npm run format` before committing; CI fails if a file isn't formatted. ESLint doesn't check formatting (`eslint-config-prettier` switches off anything that would conflict). Imports are kept in one order by ESLint (`eslint-plugin-simple-import-sort`): CSS and other side-effect imports first, then packages, then `@/` imports, then relative ones; `npm run lint:fix` sorts them. Prettier doesn't rewrap comments, so keep comments within 100 columns by hand. After `npx shadcn add`, run `npm run format` to bring the generated files in line.
 
 The big formatting commit is listed in `.git-blame-ignore-revs`, so `git blame` skips it (GitHub does this automatically; locally run `git config blame.ignoreRevsFile .git-blame-ignore-revs`).
 

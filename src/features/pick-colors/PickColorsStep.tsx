@@ -1,11 +1,14 @@
-import type { HarmonyId } from '@/features/harmony/harmony';
-import { useRef } from 'react';
 import './pick-colors.css';
-import HarmonyExplorer from '@/features/harmony/HarmonyExplorer';
+
+import { useRef } from 'react';
+
+import type { HarmonyId } from '@/features/harmony/harmony';
 import { generateHarmony } from '@/features/harmony/harmony';
+import HarmonyExplorer from '@/features/harmony/HarmonyExplorer';
 import Suggestions from '@/features/suggestions/Suggestions';
 import { scrollToIfNeeded } from '@/shared/dom/scroll';
 import { MAX_PALETTE_COLORS } from '@/shared/palette-limit';
+
 import PaletteStack from './PaletteStack';
 
 interface PickColorsStepProps {

@@ -1,17 +1,19 @@
 import { describe, expect, it } from 'vitest';
+
 import { MAX_PALETTE_COLORS } from '@/shared/palette-limit';
+
 import {
-  EMPTY_PALETTE,
   addPicks,
   applyAutoHarmony,
   choosePairing,
   clearPairing,
   dropAuto,
+  EMPTY_PALETTE,
   isFull,
   paletteColors,
+  type PaletteState,
   removeColor,
   togglePick,
-  type PaletteState,
 } from './palette-state';
 
 const colors = (n: number) => Array.from({ length: n }, (_, i) => `#${String(i + 1).repeat(6)}`);

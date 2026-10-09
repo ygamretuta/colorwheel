@@ -1,5 +1,6 @@
-import { rgbToHex, type Rgb } from '@/shared/color/convert';
-import { deltaE, rgbToLab, type Lab } from '@/shared/color/lab';
+import { type Rgb, rgbToHex } from '@/shared/color/convert';
+import { deltaE, type Lab, rgbToLab } from '@/shared/color/lab';
+
 import type { PixelData } from './sample';
 
 // 16 levels per channel: pixels that look alike share a bin, which also averages out noise

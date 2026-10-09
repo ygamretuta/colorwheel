@@ -1,7 +1,8 @@
-import type { Block } from './layouts';
-import type { RuleRoles } from './roles';
 import './examples.css';
+
+import type { Block } from './layouts';
 import { CANVAS, LANDING_RECTS, POSTER_RECTS } from './layouts';
+import type { RuleRoles } from './roles';
 import { assignSixtyThirtyTen } from './roles';
 
 type RuleRole = 'dominant' | 'secondary' | 'accent';

@@ -1,4 +1,5 @@
 import { useActionState } from 'react';
+
 import { Button } from '@/shared/ui/button';
 
 const LABELS = { idle: 'Copy hex codes', copied: 'Copied ✓', failed: 'Copy failed, try again' };

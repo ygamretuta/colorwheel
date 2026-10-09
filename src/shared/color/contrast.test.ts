@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { contrastRatio, ensureContrast, readableTextColor } from './contrast';
 
 describe('contrast', () => {

@@ -1,9 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import Suggestions from './Suggestions';
-import { suggestPairings } from './suggest';
+
 import type { HarmonyId } from '@/features/harmony/harmony';
+
+import { suggestPairings } from './suggest';
+import Suggestions from './Suggestions';
 
 const HEX = '#3366cc';
 const HARMONY = 'square';

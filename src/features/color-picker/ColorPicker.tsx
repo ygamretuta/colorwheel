@@ -1,6 +1,8 @@
-import { useState } from 'react';
 import './color-picker.css';
-import { hexToHsl, hslToHex, normalizeHex, type Hsl } from '@/shared/color/convert';
+
+import { useState } from 'react';
+
+import { hexToHsl, type Hsl, hslToHex, normalizeHex } from '@/shared/color/convert';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';

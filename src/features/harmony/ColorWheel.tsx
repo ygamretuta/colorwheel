@@ -1,5 +1,7 @@
 import './harmony.css';
+
 import { useEffect, useRef } from 'react';
+
 import { drawWheel } from './draw-wheel';
 
 interface ColorWheelProps {

@@ -1,8 +1,9 @@
 import js from '@eslint/js';
 import { defineConfig } from 'eslint/config';
-import reactHooks from 'eslint-plugin-react-hooks';
 import prettier from 'eslint-config-prettier/flat';
+import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -24,7 +25,12 @@ export default defineConfig(
       globals: globals.browser,
       parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
     },
+    plugins: { 'simple-import-sort': simpleImportSort },
     rules: {
+      // One import order everywhere: side-effect imports (CSS) first, then packages, then `@/` imports,
+      // then relative ones, each group alphabetical. Fixable with `npm run lint:fix`.
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error',
       // Template strings with numbers are everywhere in UI text ("3 of 4 colors"); only objects, null and
       // the like are mistakes worth catching.
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],

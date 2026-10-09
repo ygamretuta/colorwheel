@@ -1,7 +1,10 @@
-import { useState } from 'react';
 import './color-source.css';
+
+import { useState } from 'react';
+
 import Swatches from '@/shared/components/Swatches';
 import { Button } from '@/shared/ui/button';
+
 import { randomSwatches } from './random-colors';
 
 interface RandomColorsProps {

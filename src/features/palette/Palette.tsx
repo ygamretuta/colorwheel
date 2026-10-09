@@ -1,6 +1,8 @@
 import './palette.css';
+
 import Swatches from '@/shared/components/Swatches';
 import { Button } from '@/shared/ui/button';
+
 import CopyCodesButton from './CopyCodesButton';
 
 interface PaletteProps {

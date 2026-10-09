@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+
 import ExtractedColors from './ExtractedColors';
 
 const COLORS = ['#ff0000', '#00ff00', '#0000ff'];

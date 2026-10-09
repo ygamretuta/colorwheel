@@ -1,7 +1,9 @@
-import type { HarmonyId } from './harmony';
 import { useId } from 'react';
+
 import { Label } from '@/shared/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
+
+import type { HarmonyId } from './harmony';
 import { HARMONIES } from './harmony';
 
 interface HarmonySelectorProps {

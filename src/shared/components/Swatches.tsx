@@ -1,5 +1,6 @@
-import { readableTextColor } from '@/shared/color/contrast';
 import './swatches.css';
+
+import { readableTextColor } from '@/shared/color/contrast';
 
 interface SwatchesProps {
   colors: string[];

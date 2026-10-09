@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
 import './stepper.css';
+
+import { useEffect, useState } from 'react';
+
 import { Button } from '@/shared/ui/button';
-import { STEPS, canVisit } from './steps';
+
+import { canVisit, STEPS } from './steps';
 
 const CONFIRM_WINDOW_MS = 3000;
 

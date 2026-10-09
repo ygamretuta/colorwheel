@@ -1,7 +1,7 @@
 import { findHarmony, generateHarmony } from '@/features/harmony/harmony';
 import { contrastRatio, ensureContrast } from '@/shared/color/contrast';
 import { hexToHsl, hexToRgb, hslToHex, isNeutral, normalizeHex } from '@/shared/color/convert';
-import { deltaE, rgbToLab, type Lab } from '@/shared/color/lab';
+import { deltaE, type Lab, rgbToLab } from '@/shared/color/lab';
 
 const MATCH_CONTRAST = 3;
 const SCHEME_CONTRAST = 1.5;

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
+
 import { hexToHsl } from '@/shared/color/convert';
-import { HARMONIES, generateAllHarmonies, generateHarmony } from './harmony';
+
+import { generateAllHarmonies, generateHarmony, HARMONIES } from './harmony';
 
 const hue = (hex: string) => Math.round(hexToHsl(hex).h);
 const hueGap = (a: number, b: number) => Math.min(Math.abs(a - b), 360 - Math.abs(a - b));

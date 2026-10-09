@@ -1,10 +1,12 @@
-import type { HarmonyId } from './harmony';
 import './harmony.css';
+
 import Swatches from '@/shared/components/Swatches';
 import { MAX_PALETTE_COLORS } from '@/shared/palette-limit';
+
 import ColorWheel from './ColorWheel';
-import HarmonySelector from './HarmonySelector';
+import type { HarmonyId } from './harmony';
 import { generateHarmony } from './harmony';
+import HarmonySelector from './HarmonySelector';
 
 interface HarmonyExplorerProps {
   hex: string;

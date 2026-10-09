@@ -1,8 +1,10 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import SixtyThirtyTen from './SixtyThirtyTen';
+
 import { chroma } from '@/shared/color/convert';
+
 import { assignSixtyThirtyTen } from './roles';
+import SixtyThirtyTen from './SixtyThirtyTen';
 
 const PALETTE = ['#1d3557', '#457b9d', '#a8dadc', '#f1faee', '#e63946'];
 

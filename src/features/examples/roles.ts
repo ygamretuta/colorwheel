@@ -1,6 +1,6 @@
 import { luminance, readableTextColor } from '@/shared/color/contrast';
-import { chroma, hexToHsl, hslToHex, normalizeHex, setLightness } from '@/shared/color/convert';
 import { contrastRatio } from '@/shared/color/contrast';
+import { chroma, hexToHsl, hslToHex, normalizeHex, setLightness } from '@/shared/color/convert';
 
 /**
  * Design roles for the example mock-ups: extremes for backgrounds and type, then an accent and a

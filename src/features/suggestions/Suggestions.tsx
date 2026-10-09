@@ -1,7 +1,9 @@
-import type { HarmonyId } from '@/features/harmony/harmony';
 import './suggestions.css';
+
+import type { HarmonyId } from '@/features/harmony/harmony';
 import Swatches from '@/shared/components/Swatches';
 import { Button } from '@/shared/ui/button';
+
 import { suggestPairings } from './suggest';
 
 const sameColors = (a: string[], b: string[]): boolean =>

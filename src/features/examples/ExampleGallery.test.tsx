@@ -1,5 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+
 import ExampleGallery from './ExampleGallery';
 
 const PALETTE = ['#1d3557', '#457b9d', '#a8dadc', '#f1faee', '#e63946'];

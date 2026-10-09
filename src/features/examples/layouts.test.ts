@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { LANDING_RECTS, POSTER_RECTS, roleShares } from './layouts';
 
 describe('60-30-10 layouts', () => {

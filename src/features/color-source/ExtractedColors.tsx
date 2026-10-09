@@ -1,5 +1,7 @@
-import { useState } from 'react';
 import './color-source.css';
+
+import { useState } from 'react';
+
 import Swatches from '@/shared/components/Swatches';
 import { MAX_PALETTE_COLORS } from '@/shared/palette-limit';
 import { Button } from '@/shared/ui/button';

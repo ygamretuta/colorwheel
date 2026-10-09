@@ -1,5 +1,6 @@
-import type { Roles } from './roles';
 import { useId } from 'react';
+
+import type { Roles } from './roles';
 
 interface MoviePosterProps {
   roles: Roles;

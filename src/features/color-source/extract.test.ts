@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
+
 import { hexToRgb } from '@/shared/color/convert';
 import { deltaE, rgbToLab } from '@/shared/color/lab';
+
 import { extractPalette, extractPaletteWithShares } from './extract';
 
 /** Build ImageData-like pixels from [r, g, b, count] runs. */

@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
+
 import { HARMONIES } from '@/features/harmony/harmony';
 import { contrastRatio } from '@/shared/color/contrast';
 import { hexToHsl, hexToRgb } from '@/shared/color/convert';
 import { deltaE, rgbToLab } from '@/shared/color/lab';
+
 import { suggestPairings } from './suggest';
 
 const BASE = '#3366cc';

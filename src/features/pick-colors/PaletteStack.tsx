@@ -1,4 +1,5 @@
 import './pick-colors.css';
+
 import { readableTextColor } from '@/shared/color/contrast';
 import { MAX_PALETTE_COLORS } from '@/shared/palette-limit';
 

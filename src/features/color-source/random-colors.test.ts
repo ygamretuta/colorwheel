@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { deltaE, rgbToLab } from '@/shared/color/lab';
+
 import { hexToHsl, hexToRgb } from '@/shared/color/convert';
+import { deltaE, rgbToLab } from '@/shared/color/lab';
+
 import { RANDOM_SWATCH_COUNT, randomSwatches } from './random-colors';
 
 /** A small deterministic random source, so each test sees the same numbers every run. */

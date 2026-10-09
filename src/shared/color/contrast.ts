@@ -1,4 +1,4 @@
-import { hexToRgb, hexToHsl, setLightness } from './convert';
+import { hexToHsl, hexToRgb, setLightness } from './convert';
 
 function channelLuminance(channel: number): number {
   const value = channel / 255;

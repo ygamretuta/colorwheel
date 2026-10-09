@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import RandomColors from './RandomColors';
+
 import { randomSwatches } from './random-colors';
+import RandomColors from './RandomColors';
 
 afterEach(() => vi.restoreAllMocks());
 

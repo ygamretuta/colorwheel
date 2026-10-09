@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { deltaE, rgbToLab } from './lab';
 
 describe('lab', () => {

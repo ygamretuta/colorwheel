@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+
 import { contrastRatio, luminance } from '@/shared/color/contrast';
+
 import { assignRoles } from './roles';
 
 const PALETTE = ['#1d3557', '#457b9d', '#a8dadc', '#f1faee', '#e63946'];

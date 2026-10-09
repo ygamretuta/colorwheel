@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { averageHex, toCanvasPoint } from './sample';
 
 describe('sample', () => {
