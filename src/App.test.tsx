@@ -10,7 +10,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks();
-  delete (globalThis as { createImageBitmap?: unknown }).createImageBitmap;
+  vi.unstubAllGlobals();
 });
 
 /** The colors in step 2's stacked palette preview, in order. */
@@ -164,7 +164,6 @@ describe('unchecking a color on the wheel swatches', () => {
 describe('choosing a suggested pairing on step 2', () => {
   const FOUR: [string, number][] = [['#cc3333', 40], ['#33cc33', 30], ['#3333cc', 20], ['#cccc33', 10]];
   const toStep2 = () => userEvent.click(screen.getByText(/^Next: Pick your colors/));
-  const wheel = () => [...document.querySelectorAll<HTMLElement>('.harmony .swatches__item')];
   const inPalette = stackColors;
   const chip = (id: string) => [...document.querySelectorAll<HTMLElement>(`[data-suggestion="${id}"] .swatches__item`)].map((el) => el.dataset.hex);
   const cards = () => [...document.querySelectorAll<HTMLElement>('[data-suggestion]')].map((el) => `${el.dataset.suggestion}:${chip(el.dataset.suggestion!).join(',')}`);
@@ -174,7 +173,7 @@ describe('choosing a suggested pairing on step 2', () => {
   };
 
   const imageWithFourColors = async () => {
-    globalThis.createImageBitmap = vi.fn(async () => ({ width: 100, height: 1, close() {} })) as unknown as typeof createImageBitmap;
+    vi.stubGlobal('createImageBitmap', vi.fn(() => Promise.resolve({ width: 100, height: 1, close() {} })));
     const pixels = FOUR.flatMap(([hex, n]) => {
       const v = parseInt(hex.slice(1), 16);
       return Array.from({ length: n }, () => [(v >> 16) & 255, (v >> 8) & 255, v & 255, 255]).flat();
@@ -184,7 +183,10 @@ describe('choosing a suggested pairing on step 2', () => {
     render(<App />);
     const event = new Event('paste');
     Object.defineProperty(event, 'clipboardData', { value: { items: [{ type: 'image/png', getAsFile: () => new Blob(['x'], { type: 'image/png' }) }] } });
-    await act(async () => { document.dispatchEvent(event); });
+    await act(async () => {
+      document.dispatchEvent(event);
+      await Promise.resolve(); // let the mocked image load settle
+    });
     await screen.findByText('Colors in this image');
     await userEvent.click(screen.getByText('Add all to palette')); // palette is now the four image colors
   };
@@ -556,7 +558,7 @@ describe('App with colors picked from an image', () => {
       set: () => true,
     });
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context as unknown as CanvasRenderingContext2D);
-    globalThis.createImageBitmap = vi.fn(async () => ({ width: pixels.length / 4, height: 1, close() {} })) as unknown as typeof createImageBitmap;
+    vi.stubGlobal('createImageBitmap', vi.fn(() => Promise.resolve({ width: pixels.length / 4, height: 1, close() {} })));
   };
 
   const pasteImage = async ({ expectColors = true } = {}) => {
@@ -566,6 +568,7 @@ describe('App with colors picked from an image', () => {
     });
     await act(async () => {
       document.dispatchEvent(event);
+      await Promise.resolve(); // let the mocked image load settle
     });
     if (expectColors) await screen.findByText('Colors in this image');
     else await act(async () => {}); // let the image load settle

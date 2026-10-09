@@ -15,7 +15,7 @@ interface ImageSourceProps {
   hex: string;
   onPick: (hex: string) => void;
   onImageLoaded: (colors: string[]) => void;
-  onAddAll: (colors: string[]) => AddResult | void;
+  onAddAll: (colors: string[]) => AddResult | undefined;
 }
 
 /**
@@ -56,20 +56,22 @@ export default function ImageSource({ hex, onPick, onImageLoaded, onAddAll }: Im
     try {
       const bitmap = await createImageBitmap(blob);
       drawImage(bitmap, bitmap.width, bitmap.height);
-      bitmap.close?.();
+      bitmap.close();
     } catch {
       setStatus('That file could not be read as an image.');
     }
   }
 
   async function captureScreen() {
-    if (!navigator.mediaDevices?.getDisplayMedia) {
+    // Insecure pages and many mobile browsers have no mediaDevices or no getDisplayMedia, though the types say they always do.
+    const devices = navigator.mediaDevices as Partial<MediaDevices> | undefined;
+    if (typeof devices?.getDisplayMedia !== 'function') {
       setStatus('Screen capture is not supported in this browser. Paste a screenshot or upload an image instead.');
       return;
     }
     let stream: MediaStream | undefined;
     try {
-      stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+      stream = await devices.getDisplayMedia({ video: true, audio: false });
       const video = document.createElement('video');
       video.srcObject = stream;
       video.muted = true;
@@ -83,8 +85,10 @@ export default function ImageSource({ hex, onPick, onImageLoaded, onAddAll }: Im
   }
 
   async function useEyedropper() {
+    const EyeDropperApi = window.EyeDropper; // the button is only shown where this exists
+    if (!EyeDropperApi) return;
     try {
-      const { sRGBHex } = await new window.EyeDropper!().open(); // only offered when HAS_EYEDROPPER
+      const { sRGBHex } = await new EyeDropperApi().open();
       onPick(sRGBHex);
     } catch {
       setStatus('Eyedropper cancelled.');
@@ -95,7 +99,7 @@ export default function ImageSource({ hex, onPick, onImageLoaded, onAddAll }: Im
   const onPaste = useEffectEvent((event: ClipboardEvent) => {
     const item = [...(event.clipboardData?.items ?? [])].find((entry) => entry.type.startsWith('image/'));
     const file = item?.getAsFile();
-    if (file) loadBlob(file);
+    if (file) void loadBlob(file);
   });
 
   useEffect(() => {
@@ -122,7 +126,7 @@ export default function ImageSource({ hex, onPick, onImageLoaded, onAddAll }: Im
             data-testid="file"
             onChange={(event) => {
               const file = event.target.files?.[0];
-              if (file) loadBlob(file);
+              if (file) void loadBlob(file);
               event.target.value = '';
             }}
           />

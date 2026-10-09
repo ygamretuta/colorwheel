@@ -14,7 +14,7 @@ interface ExtractedColorsProps {
   colors: string[];
   activeHex?: string;
   onPick: (hex: string) => void;
-  onAdd: (colors: string[]) => AddResult | void;
+  onAdd: (colors: string[]) => AddResult | undefined;
 }
 
 /**

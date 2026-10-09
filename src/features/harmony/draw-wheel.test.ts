@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { drawWheel } from './ColorWheel';
+import { drawWheel } from './draw-wheel';
 
 interface Circle {
   x: number;

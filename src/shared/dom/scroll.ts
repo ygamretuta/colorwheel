@@ -1,5 +1,5 @@
 const prefersReducedMotion = () =>
-  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches; // jsdom has no matchMedia
 
 /**
  * Bring `element` into view only if it isn't already, so screens that fit stay still

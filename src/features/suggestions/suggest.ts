@@ -151,7 +151,7 @@ function suggestShades(anchors: string[], name: string): Suggestion[] | null {
  *
  * Returns [{ id, label, reason, colors }]; `colors` excludes the base.
  */
-export function suggestPairings(hex: string, harmony: string = 'complementary', context: string[] = []): Suggestion[] {
+export function suggestPairings(hex: string, harmony = 'complementary', context: string[] = []): Suggestion[] {
   const base = normalizeHex(hex);
   if (!base) throw new Error(`Invalid hex color: ${hex}`);
   const scheme = findHarmony(harmony);

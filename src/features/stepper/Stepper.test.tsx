@@ -73,7 +73,9 @@ describe('StepHeader reset', () => {
 
     act(() => screen.getByText('Reset').click());
     expect(screen.getByText('Confirm')).toBeTruthy();
-    act(() => vi.advanceTimersByTime(3100));
+    act(() => {
+      vi.advanceTimersByTime(3100);
+    });
     expect(screen.getByText('Reset')).toBeTruthy();
 
     act(() => screen.getByText('Reset').click()); // needs a fresh confirmation
