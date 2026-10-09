@@ -6,7 +6,10 @@ import { randomSwatches } from './random-colors';
 
 afterEach(() => vi.restoreAllMocks());
 
-const swatches = () => [...document.querySelectorAll<HTMLElement>('.source__random .swatches__item')].map((el) => el.dataset.hex!);
+const swatches = () =>
+  [...document.querySelectorAll<HTMLElement>('.source__random .swatches__item')].map(
+    (el) => el.dataset.hex!,
+  );
 
 describe('RandomColors', () => {
   it('shows six random colors to choose from', () => {
@@ -40,7 +43,9 @@ describe('RandomColors', () => {
     const known = randomSwatches(6, () => 0.5);
     render(<RandomColors onPick={() => {}} activeHex={known[2]} />);
     expect(swatches()).toEqual(known);
-    const active = [...document.querySelectorAll<HTMLElement>('.source__random .swatches__item--active')];
+    const active = [
+      ...document.querySelectorAll<HTMLElement>('.source__random .swatches__item--active'),
+    ];
     expect(active.map((el) => el.dataset.hex)).toEqual([known[2]]);
   });
 

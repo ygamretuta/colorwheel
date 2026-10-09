@@ -1,5 +1,6 @@
 const prefersReducedMotion = () =>
-  typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches; // jsdom has no matchMedia
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches; // jsdom has no matchMedia
 
 /**
  * Bring `element` into view only if it isn't already, so screens that fit stay still
@@ -9,6 +10,9 @@ const prefersReducedMotion = () =>
 export function scrollToIfNeeded(element: Element | null | undefined): void {
   if (!element?.scrollIntoView) return;
   requestAnimationFrame(() => {
-    element.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    element.scrollIntoView({
+      block: 'nearest',
+      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+    });
   });
 }

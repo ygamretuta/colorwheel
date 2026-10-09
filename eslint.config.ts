@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import { defineConfig } from 'eslint/config';
 import reactHooks from 'eslint-plugin-react-hooks';
+import prettier from 'eslint-config-prettier/flat';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
@@ -17,6 +18,7 @@ export default defineConfig(
   tseslint.configs.stylisticTypeChecked,
   reactHooks.configs.flat.recommended,
   reactRefresh.configs.vite,
+  prettier, // last among the presets: switches off any rule that would fight Prettier over formatting
   {
     languageOptions: {
       globals: globals.browser,
@@ -29,7 +31,10 @@ export default defineConfig(
       // `onClick={() => doThing(x)}` is the normal React shape; the rule would force braces on every handler.
       '@typescript-eslint/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true }],
       // Passing an async function to an event prop is fine in React; every handler here catches its own errors.
-      '@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: { attributes: false } }],
+      '@typescript-eslint/no-misused-promises': [
+        'error',
+        { checksVoidReturn: { attributes: false } },
+      ],
     },
   },
   {

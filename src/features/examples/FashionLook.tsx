@@ -6,7 +6,12 @@ interface FashionLookProps {
 /** Flat-lay style outfit on a neutral mannequin, colored from the palette roles. */
 export default function FashionLook({ roles }: FashionLookProps) {
   return (
-    <svg viewBox="0 0 200 300" role="img" aria-label="Fashion outfit in your palette" className="examples__art">
+    <svg
+      viewBox="0 0 200 300"
+      role="img"
+      aria-label="Fashion outfit in your palette"
+      className="examples__art"
+    >
       <rect width="200" height="300" fill={roles.light} />
       <circle cx="100" cy="150" r="104" fill={roles.mid} opacity="0.35" />
       {/* mannequin */}
@@ -19,7 +24,13 @@ export default function FashionLook({ roles }: FashionLookProps) {
       {/* jacket: two panels with an open front */}
       <path d="M72 72 L52 84 L46 168 H80 L88 76 Z" fill={roles.dark} />
       <path d="M128 72 L148 84 L154 168 H120 L112 76 Z" fill={roles.dark} />
-      <path d="M88 76 L100 100 L112 76" fill="none" stroke={roles.onDark} strokeWidth="1.5" opacity="0.6" />
+      <path
+        d="M88 76 L100 100 L112 76"
+        fill="none"
+        stroke={roles.onDark}
+        strokeWidth="1.5"
+        opacity="0.6"
+      />
       {/* shoes */}
       <ellipse cx="78" cy="274" rx="19" ry="7" fill={roles.dark} />
       <ellipse cx="122" cy="274" rx="19" ry="7" fill={roles.dark} />
@@ -27,7 +38,17 @@ export default function FashionLook({ roles }: FashionLookProps) {
       <path d="M44 160 C44 140 74 140 74 160" fill="none" stroke={roles.dark} strokeWidth="2" />
       <rect x="38" y="160" width="42" height="30" rx="4" fill={roles.accent} />
       <rect x="38" y="166" width="42" height="3" fill={roles.onAccent} opacity="0.4" />
-      <text x="100" y="294" textAnchor="middle" fontSize="7" letterSpacing="2" fill={roles.onLight} opacity="0.7">AUTUMN LOOK 01</text>
+      <text
+        x="100"
+        y="294"
+        textAnchor="middle"
+        fontSize="7"
+        letterSpacing="2"
+        fill={roles.onLight}
+        opacity="0.7"
+      >
+        AUTUMN LOOK 01
+      </text>
     </svg>
   );
 }

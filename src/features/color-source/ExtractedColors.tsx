@@ -18,11 +18,16 @@ interface ExtractedColorsProps {
 }
 
 /**
- * Colors found in an image. Tapping one makes it the base color (`onPick`); the button adds them to the
- * palette (`onAdd(colors)`). The palette holds a few colors only, so with more than that the button adds the
- * most common ones, and `onAdd` reports how many fit as `{ added, total }`.
+ * Colors found in an image. Tapping one makes it the base color (`onPick`); the button adds them to
+ * the palette (`onAdd(colors)`). The palette holds a few colors only, so with more than that the
+ * button adds the most common ones, and `onAdd` reports how many fit as `{ added, total }`.
  */
-export default function ExtractedColors({ colors, activeHex, onPick, onAdd }: ExtractedColorsProps) {
+export default function ExtractedColors({
+  colors,
+  activeHex,
+  onPick,
+  onAdd,
+}: ExtractedColorsProps) {
   const [result, setResult] = useState<AddResult | null>(null);
 
   return (
@@ -41,8 +46,12 @@ export default function ExtractedColors({ colors, activeHex, onPick, onAdd }: Ex
 }
 
 function label(count: number, result: AddResult | null): string {
-  if (!result) return count > MAX_PALETTE_COLORS ? `Add top ${MAX_PALETTE_COLORS} to palette` : 'Add all to palette';
+  if (!result)
+    return count > MAX_PALETTE_COLORS
+      ? `Add top ${MAX_PALETTE_COLORS} to palette`
+      : 'Add all to palette';
   if (result.added === 0) return 'Palette is full: remove a color first';
-  if (result.added < result.total) return `Added ${result.added} of ${result.total} (palette holds ${MAX_PALETTE_COLORS}) ✓`;
+  if (result.added < result.total)
+    return `Added ${result.added} of ${result.total} (palette holds ${MAX_PALETTE_COLORS}) ✓`;
   return 'Added to palette ✓';
 }

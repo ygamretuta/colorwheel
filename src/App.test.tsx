@@ -14,7 +14,10 @@ afterEach(() => {
 });
 
 /** The colors in step 2's stacked palette preview, in order. */
-const stackColors = () => [...document.querySelectorAll<HTMLElement>('.stack__segment[data-hex]')].map((el) => el.dataset.hex);
+const stackColors = () =>
+  [...document.querySelectorAll<HTMLElement>('.stack__segment[data-hex]')].map(
+    (el) => el.dataset.hex,
+  );
 
 describe('App flow', () => {
   it('restarts from the last step with an empty palette and default color', async () => {
@@ -22,7 +25,9 @@ describe('App flow', () => {
     await userEvent.click(screen.getByText(/^Next: Pick your colors/));
     await userEvent.click(screen.getAllByText('Choose')[0]);
     await userEvent.click(screen.getByText(/^Next: Your palette/));
-    expect(document.querySelectorAll<HTMLElement>('.palette .swatches__item').length).toBeGreaterThan(0);
+    expect(
+      document.querySelectorAll<HTMLElement>('.palette .swatches__item').length,
+    ).toBeGreaterThan(0);
 
     await userEvent.click(screen.getByText('Start over'));
     expect(screen.getByText('Step 1 of 3')).toBeTruthy();
@@ -40,10 +45,13 @@ describe('App flow', () => {
   it('keeps manual choices instead of re-selecting the wheel', async () => {
     render(<App />);
     await userEvent.click(screen.getByText(/^Next: Pick your colors/));
-    await userEvent.click(screen.getAllByTitle<HTMLButtonElement>(/^Remove #/)[1]); // user drops the second color
+    // user drops the second color
+    await userEvent.click(screen.getAllByTitle<HTMLButtonElement>(/^Remove #/)[1]);
     await userEvent.click(screen.getByText('Back'));
     await userEvent.click(screen.getByText(/^Next: Pick your colors/));
-    const pressed = [...document.querySelectorAll<HTMLElement>('.harmony .swatches__item')].map((s) => s.getAttribute('aria-pressed'));
+    const pressed = [...document.querySelectorAll<HTMLElement>('.harmony .swatches__item')].map(
+      (s) => s.getAttribute('aria-pressed'),
+    );
     expect(pressed).toEqual(['true', 'false']);
   });
 
@@ -66,12 +74,15 @@ describe('App flow', () => {
 });
 
 describe('unchecking a color on the wheel swatches', () => {
-  const wheelSwatch = (index: number) => [...document.querySelectorAll<HTMLElement>('.harmony .swatches__item')][index];
+  const wheelSwatch = (index: number) =>
+    [...document.querySelectorAll<HTMLElement>('.harmony .swatches__item')][index];
   const isChecked = (el: HTMLElement) => el.getAttribute('aria-pressed') === 'true';
   const goToStep2 = () => userEvent.click(screen.getByText(/^Next: Pick your colors/));
   const finalPalette = async () => {
     await userEvent.click(screen.getByText(/^Next: Your palette/));
-    return [...document.querySelectorAll<HTMLElement>('.palette .swatches__item')].map((el) => el.dataset.hex);
+    return [...document.querySelectorAll<HTMLElement>('.palette .swatches__item')].map(
+      (el) => el.dataset.hex,
+    );
   };
 
   it('removes the color from the final palette', async () => {
@@ -93,11 +104,13 @@ describe('unchecking a color on the wheel swatches', () => {
     const base = wheelSwatch(0).dataset.hex;
     await userEvent.click(screen.getAllByText('Choose')[0]); // the pairing contains the base
 
-    expect(isChecked(wheelSwatch(0))).toBe(true); // the checkmark follows the real palette, pairing included
+    // the checkmark follows the real palette, pairing included
+    expect(isChecked(wheelSwatch(0))).toBe(true);
     await userEvent.click(wheelSwatch(0)); // uncheck it
 
     expect(isChecked(wheelSwatch(0))).toBe(false);
-    expect(document.querySelectorAll<HTMLElement>('.suggestions__item--picked')).toHaveLength(0); // the pairing no longer stands
+    // the pairing no longer stands
+    expect(document.querySelectorAll<HTMLElement>('.suggestions__item--picked')).toHaveLength(0);
     const palette = await finalPalette();
     expect(palette).not.toContain(base);
     expect(palette.length).toBeGreaterThan(0); // the pairing's other color stays
@@ -119,9 +132,14 @@ describe('unchecking a color on the wheel swatches', () => {
   it('shows the checkmark for every color that is really in the palette', async () => {
     render(<App />);
     await goToStep2();
-    await userEvent.click(screen.getAllByText('Choose')[1]); // "Match + shade": base plus two colors
-    const checked = [...document.querySelectorAll<HTMLElement>('.harmony .swatches__item')].filter(isChecked).map((el) => el.dataset.hex);
-    const inPairing = [...document.querySelectorAll<HTMLElement>('.suggestions__item--picked .swatches__item')].map((el) => el.dataset.hex);
+    // "Match + shade": base plus two colors
+    await userEvent.click(screen.getAllByText('Choose')[1]);
+    const checked = [...document.querySelectorAll<HTMLElement>('.harmony .swatches__item')]
+      .filter(isChecked)
+      .map((el) => el.dataset.hex);
+    const inPairing = [
+      ...document.querySelectorAll<HTMLElement>('.suggestions__item--picked .swatches__item'),
+    ].map((el) => el.dataset.hex);
     checked.forEach((hex) => expect(inPairing).toContain(hex));
     expect(checked).toContain(wheelSwatch(0).dataset.hex);
   });
@@ -133,7 +151,9 @@ describe('unchecking a color on the wheel swatches', () => {
     const chosen = await finalPalette(); // goes to step 3...
     await userEvent.click(screen.getByText('Back')); // ...and back to step 2
 
-    expect(screen.getByText(/of 4 colors in your palette/).textContent).toContain(`${chosen.length} of 4`);
+    expect(screen.getByText(/of 4 colors in your palette/).textContent).toContain(
+      `${chosen.length} of 4`,
+    );
     expect(await finalPalette()).toEqual(chosen); // nothing was added behind your back
   });
 
@@ -162,33 +182,70 @@ describe('unchecking a color on the wheel swatches', () => {
 });
 
 describe('choosing a suggested pairing on step 2', () => {
-  const FOUR: [string, number][] = [['#cc3333', 40], ['#33cc33', 30], ['#3333cc', 20], ['#cccc33', 10]];
+  const FOUR: [string, number][] = [
+    ['#cc3333', 40],
+    ['#33cc33', 30],
+    ['#3333cc', 20],
+    ['#cccc33', 10],
+  ];
   const toStep2 = () => userEvent.click(screen.getByText(/^Next: Pick your colors/));
   const inPalette = stackColors;
-  const chip = (id: string) => [...document.querySelectorAll<HTMLElement>(`[data-suggestion="${id}"] .swatches__item`)].map((el) => el.dataset.hex);
-  const cards = () => [...document.querySelectorAll<HTMLElement>('[data-suggestion]')].map((el) => `${el.dataset.suggestion}:${chip(el.dataset.suggestion!).join(',')}`);
+  const chip = (id: string) =>
+    [...document.querySelectorAll<HTMLElement>(`[data-suggestion="${id}"] .swatches__item`)].map(
+      (el) => el.dataset.hex,
+    );
+  const cards = () =>
+    [...document.querySelectorAll<HTMLElement>('[data-suggestion]')].map(
+      (el) => `${el.dataset.suggestion}:${chip(el.dataset.suggestion!).join(',')}`,
+    );
   const finalPalette = async () => {
     await userEvent.click(screen.getByText(/^Next: Your palette/));
-    return [...document.querySelectorAll<HTMLElement>('.palette .swatches__item')].map((el) => el.dataset.hex);
+    return [...document.querySelectorAll<HTMLElement>('.palette .swatches__item')].map(
+      (el) => el.dataset.hex,
+    );
   };
 
   const imageWithFourColors = async () => {
-    vi.stubGlobal('createImageBitmap', vi.fn(() => Promise.resolve({ width: 100, height: 1, close() {} })));
+    vi.stubGlobal(
+      'createImageBitmap',
+      vi.fn(() => Promise.resolve({ width: 100, height: 1, close() {} })),
+    );
     const pixels = FOUR.flatMap(([hex, n]) => {
       const v = parseInt(hex.slice(1), 16);
-      return Array.from({ length: n }, () => [(v >> 16) & 255, (v >> 8) & 255, v & 255, 255]).flat();
+      return Array.from({ length: n }, () => [
+        (v >> 16) & 255,
+        (v >> 8) & 255,
+        v & 255,
+        255,
+      ]).flat();
     });
-    const context = new Proxy({}, { get: (_t, name) => (name === 'getImageData' ? () => ({ data: new Uint8ClampedArray(pixels), width: 100, height: 1 }) : () => {}), set: () => true });
-    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context as unknown as CanvasRenderingContext2D);
+    const context = new Proxy(
+      {},
+      {
+        get: (_t, name) =>
+          name === 'getImageData'
+            ? () => ({ data: new Uint8ClampedArray(pixels), width: 100, height: 1 })
+            : () => {},
+        set: () => true,
+      },
+    );
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
+      context as unknown as CanvasRenderingContext2D,
+    );
     render(<App />);
     const event = new Event('paste');
-    Object.defineProperty(event, 'clipboardData', { value: { items: [{ type: 'image/png', getAsFile: () => new Blob(['x'], { type: 'image/png' }) }] } });
+    Object.defineProperty(event, 'clipboardData', {
+      value: {
+        items: [{ type: 'image/png', getAsFile: () => new Blob(['x'], { type: 'image/png' }) }],
+      },
+    });
     await act(async () => {
       document.dispatchEvent(event);
       await Promise.resolve(); // let the mocked image load settle
     });
     await screen.findByText('Colors in this image');
-    await userEvent.click(screen.getByText('Add all to palette')); // palette is now the four image colors
+    // palette is now the four image colors
+    await userEvent.click(screen.getByText('Add all to palette'));
   };
 
   it('resets the final palette to exactly the colors of the suggestion', async () => {
@@ -201,7 +258,9 @@ describe('choosing a suggested pairing on step 2', () => {
 
     const palette = await finalPalette();
     expect(palette).toEqual(suggested);
-    ['#33cc33', '#3333cc', '#cccc33'].forEach((imageColor) => expect(palette).not.toContain(imageColor));
+    ['#33cc33', '#3333cc', '#cccc33'].forEach((imageColor) =>
+      expect(palette).not.toContain(imageColor),
+    );
   });
 
   it('works while the palette is full: no pairing is disabled', async () => {
@@ -209,7 +268,9 @@ describe('choosing a suggested pairing on step 2', () => {
     await toStep2();
     expect(screen.getByText(/4 of 4 colors in your palette/)).toBeTruthy();
     expect(screen.queryByText('No room')).toBeNull();
-    screen.getAllByText('Choose').forEach((button) => expect(button.closest('button')!.disabled).toBe(false));
+    screen
+      .getAllByText('Choose')
+      .forEach((button) => expect(button.closest('button')!.disabled).toBe(false));
     expect(screen.queryByText(/Your palette is full/)).toBeNull();
   });
 
@@ -219,9 +280,12 @@ describe('choosing a suggested pairing on step 2', () => {
     const suggested = chip('balanced-pair');
     await userEvent.click(screen.getAllByText('Choose')[1]);
 
-    expect(screen.getByText(new RegExp(`${suggested.length} of 4 colors in your palette`))).toBeTruthy();
+    expect(
+      screen.getByText(new RegExp(`${suggested.length} of 4 colors in your palette`)),
+    ).toBeTruthy();
     expect(inPalette().sort()).toEqual([...suggested].sort());
-    expect(document.querySelectorAll<HTMLElement>('.swatches__item--locked')).toHaveLength(0); // there is room again
+    // there is room again
+    expect(document.querySelectorAll<HTMLElement>('.swatches__item--locked')).toHaveLength(0);
   });
 
   it('keeps the suggestions as they were, with the chosen one still marked', async () => {
@@ -241,7 +305,8 @@ describe('choosing a suggested pairing on step 2', () => {
     await toStep2();
     await userEvent.click(screen.getAllByText('Choose')[0]);
     const second = chip('balanced-pair');
-    await userEvent.click(screen.getAllByText('Choose')[0]); // the first row is now "Chosen"; the next "Choose" is row two
+    // the first row is now "Chosen"; the next "Choose" is row two
+    await userEvent.click(screen.getAllByText('Choose')[0]);
     expect(inPalette().sort()).toEqual([...second].sort());
   });
 
@@ -269,7 +334,8 @@ describe('choosing a suggested pairing on step 2', () => {
 });
 
 describe('clicking the progress bar', () => {
-  const bar = (n: number) => screen.getByRole<HTMLButtonElement>('button', { name: new RegExp(`^Step ${n}:`) });
+  const bar = (n: number) =>
+    screen.getByRole<HTMLButtonElement>('button', { name: new RegExp(`^Step ${n}:`) });
   const onStep = (n: number) => expect(screen.getByText(`Step ${n} of 3`)).toBeTruthy();
   const next = () => userEvent.click(screen.getByText(/^Next: /));
 
@@ -377,7 +443,10 @@ describe('clicking the progress bar', () => {
 });
 
 describe('random colors on step 1', () => {
-  const randomRow = () => [...document.querySelectorAll<HTMLElement>('.source__random .swatches__item')].map((el) => el.dataset.hex!);
+  const randomRow = () =>
+    [...document.querySelectorAll<HTMLElement>('.source__random .swatches__item')].map(
+      (el) => el.dataset.hex!,
+    );
   const field = () => screen.getByLabelText<HTMLInputElement>('Hex value');
 
   it('shows a row of random colors as soon as the app loads', () => {
@@ -399,7 +468,9 @@ describe('random colors on step 1', () => {
     const target = randomRow()[1];
     await userEvent.click(screen.getByTitle(`Use ${target}`));
     await userEvent.click(screen.getByText(/^Next: Pick your colors/));
-    expect(document.querySelector<HTMLElement>('.harmony .swatches__item')!.dataset.hex).toBe(target);
+    expect(document.querySelector<HTMLElement>('.harmony .swatches__item')!.dataset.hex).toBe(
+      target,
+    );
     expect(stackColors()[0]).toBe(target);
   });
 
@@ -407,9 +478,17 @@ describe('random colors on step 1', () => {
     render(<App />);
     const [first, second] = randomRow();
     await userEvent.click(screen.getByTitle(`Use ${first}`));
-    expect([...document.querySelectorAll<HTMLElement>('.source__random .swatches__item--active')].map((el) => el.dataset.hex)).toEqual([first]);
+    expect(
+      [...document.querySelectorAll<HTMLElement>('.source__random .swatches__item--active')].map(
+        (el) => el.dataset.hex,
+      ),
+    ).toEqual([first]);
     await userEvent.click(screen.getByTitle(`Use ${second}`));
-    expect([...document.querySelectorAll<HTMLElement>('.source__random .swatches__item--active')].map((el) => el.dataset.hex)).toEqual([second]);
+    expect(
+      [...document.querySelectorAll<HTMLElement>('.source__random .swatches__item--active')].map(
+        (el) => el.dataset.hex,
+      ),
+    ).toEqual([second]);
   });
 
   it('keeps the same random colors while you move between steps', async () => {
@@ -458,7 +537,8 @@ describe('the color field on step 1', () => {
 
   it('keeps the dot in step with a random swatch that is picked', async () => {
     render(<App />);
-    const target = document.querySelectorAll<HTMLElement>('.source__random .swatches__item')[2].dataset.hex!;
+    const target = document.querySelectorAll<HTMLElement>('.source__random .swatches__item')[2]
+      .dataset.hex!;
     await userEvent.click(screen.getByTitle(`Use ${target}`));
     expect(field().value).toBe(target);
     expect(dot().style.backgroundColor).toBe(css(target));
@@ -545,26 +625,51 @@ describe('App with colors picked from an image', () => {
   const RED = '#cc3333';
 
   /**
-   * A fake image: a canvas context whose pixels come from [hex, count] runs. Defaults to mostly red,
-   * some green and a little blue, so red is clearly the most common color.
+   * A fake image: a canvas context whose pixels come from [hex, count] runs. Defaults to mostly
+   * red, some green and a little blue, so red is clearly the most common color.
    */
-  const installFakeImage = (runs: [string, number][] = [[RED, 60], [GREEN, 30], [BLUE, 10]], alpha = 255) => {
+  const installFakeImage = (
+    runs: [string, number][] = [
+      [RED, 60],
+      [GREEN, 30],
+      [BLUE, 10],
+    ],
+    alpha = 255,
+  ) => {
     const pixels = runs.flatMap(([hex, count]) => {
       const value = parseInt(hex.slice(1), 16);
-      return Array.from({ length: count }, () => [(value >> 16) & 255, (value >> 8) & 255, value & 255, alpha]).flat();
+      return Array.from({ length: count }, () => [
+        (value >> 16) & 255,
+        (value >> 8) & 255,
+        value & 255,
+        alpha,
+      ]).flat();
     });
-    const context = new Proxy({}, {
-      get: (_target, name) => (name === 'getImageData' ? () => ({ data: new Uint8ClampedArray(pixels), width: pixels.length / 4, height: 1 }) : () => {}),
-      set: () => true,
-    });
-    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context as unknown as CanvasRenderingContext2D);
-    vi.stubGlobal('createImageBitmap', vi.fn(() => Promise.resolve({ width: pixels.length / 4, height: 1, close() {} })));
+    const context = new Proxy(
+      {},
+      {
+        get: (_target, name) =>
+          name === 'getImageData'
+            ? () => ({ data: new Uint8ClampedArray(pixels), width: pixels.length / 4, height: 1 })
+            : () => {},
+        set: () => true,
+      },
+    );
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
+      context as unknown as CanvasRenderingContext2D,
+    );
+    vi.stubGlobal(
+      'createImageBitmap',
+      vi.fn(() => Promise.resolve({ width: pixels.length / 4, height: 1, close() {} })),
+    );
   };
 
   const pasteImage = async ({ expectColors = true } = {}) => {
     const event = new Event('paste');
     Object.defineProperty(event, 'clipboardData', {
-      value: { items: [{ type: 'image/png', getAsFile: () => new Blob(['x'], { type: 'image/png' }) }] },
+      value: {
+        items: [{ type: 'image/png', getAsFile: () => new Blob(['x'], { type: 'image/png' }) }],
+      },
     });
     await act(async () => {
       document.dispatchEvent(event);
@@ -612,7 +717,9 @@ describe('App with colors picked from an image', () => {
     expect(screen.getByText('3 of 4 colors in your palette')).toBeTruthy();
     expect(screen.getByTitle<HTMLButtonElement>(`Remove ${GREEN} from your palette`)).toBeTruthy();
     expect(screen.getByTitle<HTMLButtonElement>(`Remove ${BLUE} from your palette`)).toBeTruthy();
-    expect(document.querySelector<HTMLElement>('.suggestions__reason')!.textContent).toMatch(/your 3 colors/);
+    expect(document.querySelector<HTMLElement>('.suggestions__reason')!.textContent).toMatch(
+      /your 3 colors/,
+    );
     expect(screen.getByText(/Small dots on the wheel are your other colors/)).toBeTruthy();
   });
 
@@ -628,19 +735,26 @@ describe('App with colors picked from an image', () => {
   it('pairings fall back to base-only suggestions when no other colors were picked', async () => {
     render(<App />);
     await userEvent.click(screen.getByText(/^Next: Pick your colors/));
-    expect(screen.queryByText(/Small dots on the wheel/)).toBeNull(); // nothing beyond the wheel's own colors
-    expect(document.querySelector<HTMLElement>('.suggestions__reason')!.textContent).not.toMatch(/your \d colors/);
+    // nothing beyond the wheel's own colors
+    expect(screen.queryByText(/Small dots on the wheel/)).toBeNull();
+    expect(document.querySelector<HTMLElement>('.suggestions__reason')!.textContent).not.toMatch(
+      /your \d colors/,
+    );
   });
 
   describe('a new image starts over', () => {
-    // Chosen so that neither color, nor the orange's complement (#3388cc), matches anything from the first image.
+    // Chosen so that neither color, nor the orange's complement (#3388cc), matches anything from
+    // the first image.
     const ORANGE = '#cc8833';
     const PURPLE = '#8833cc';
     const field = () => screen.getByLabelText<HTMLInputElement>('Hex value');
     const nextStep = () => userEvent.click(screen.getByText(/^Next: /));
     const loadSecondImage = async () => {
       vi.restoreAllMocks();
-      installFakeImage([[ORANGE, 70], [PURPLE, 30]]);
+      installFakeImage([
+        [ORANGE, 70],
+        [PURPLE, 30],
+      ]);
       await pasteImage();
     };
 
@@ -680,7 +794,9 @@ describe('App with colors picked from an image', () => {
       await nextStep();
       const swatches = [...document.querySelectorAll<HTMLElement>('.harmony .swatches__item')];
       expect(swatches[0].dataset.hex).toBe(ORANGE);
-      expect(document.querySelector<HTMLElement>('.suggestions__reason')!.textContent).not.toMatch(/your \d colors/); // no leftover context
+      expect(document.querySelector<HTMLElement>('.suggestions__reason')!.textContent).not.toMatch(
+        /your \d colors/,
+      ); // no leftover context
     });
 
     it('leaves nothing from the old image on the last step', async () => {
@@ -688,7 +804,9 @@ describe('App with colors picked from an image', () => {
       await loadSecondImage();
       await nextStep(); // step 2: auto-selects the new wheel only
       await nextStep(); // step 3
-      const palette = [...document.querySelectorAll<HTMLElement>('.palette .swatches__item')].map((swatch) => swatch.dataset.hex);
+      const palette = [...document.querySelectorAll<HTMLElement>('.palette .swatches__item')].map(
+        (swatch) => swatch.dataset.hex,
+      );
       [RED, GREEN, BLUE].forEach((old) => expect(palette).not.toContain(old));
       expect(palette).toContain(ORANGE);
     });
@@ -702,7 +820,9 @@ describe('App with colors picked from an image', () => {
 
       await nextStep();
       // image 1's picks are gone: the stack holds only what the wheel selected on arrival
-      const wheelColors = [...document.querySelectorAll<HTMLElement>('.harmony .swatches__item')].map((el) => el.dataset.hex);
+      const wheelColors = [
+        ...document.querySelectorAll<HTMLElement>('.harmony .swatches__item'),
+      ].map((el) => el.dataset.hex);
       expect(stackColors()).toEqual(wheelColors);
       expect(stackColors()).not.toContain(GREEN);
       expect(stackColors()).not.toContain(BLUE);
@@ -713,7 +833,9 @@ describe('App with colors picked from an image', () => {
       await useFirstImage();
       await loadSecondImage();
       await nextStep();
-      expect(screen.getByRole('combobox', { name: /wheel type/i }).textContent).toBe('Complementary');
+      expect(screen.getByRole('combobox', { name: /wheel type/i }).textContent).toBe(
+        'Complementary',
+      );
     });
   });
 
@@ -721,36 +843,60 @@ describe('App with colors picked from an image', () => {
     const WHITE = '#ffffff';
     const GREY = '#808080';
 
-    const wheelSwatches = () => [...document.querySelectorAll<HTMLElement>('.harmony .swatches__item')].map((swatch) => swatch.dataset.hex);
+    const wheelSwatches = () =>
+      [...document.querySelectorAll<HTMLElement>('.harmony .swatches__item')].map(
+        (swatch) => swatch.dataset.hex,
+      );
 
-    it.each([WHITE, GREY, '#000000'])('shows distinct, colorful swatches when the base is %s', async (neutral) => {
-      installFakeImage([[neutral, 70], [RED, 30]]);
-      render(<App />);
-      await pasteImage();
-      expect(screen.getByLabelText<HTMLInputElement>('Hex value').value).toBe(neutral);
+    it.each([WHITE, GREY, '#000000'])(
+      'shows distinct, colorful swatches when the base is %s',
+      async (neutral) => {
+        installFakeImage([
+          [neutral, 70],
+          [RED, 30],
+        ]);
+        render(<App />);
+        await pasteImage();
+        expect(screen.getByLabelText<HTMLInputElement>('Hex value').value).toBe(neutral);
 
-      await userEvent.click(screen.getByText(/^Next: Pick your colors/));
-      const swatches = wheelSwatches();
-      expect(swatches[0]).toBe(neutral);
-      expect(swatches.length).toBeGreaterThan(2);
-      expect(new Set(swatches).size).toBe(swatches.length); // no repeated copies of the neutral
-    });
+        await userEvent.click(screen.getByText(/^Next: Pick your colors/));
+        const swatches = wheelSwatches();
+        expect(swatches[0]).toBe(neutral);
+        expect(swatches.length).toBeGreaterThan(2);
+        expect(new Set(swatches).size).toBe(swatches.length); // no repeated copies of the neutral
+      },
+    );
 
     it('gives the suggestions real colors too', async () => {
-      installFakeImage([[WHITE, 70], [GREY, 30]]);
+      installFakeImage([
+        [WHITE, 70],
+        [GREY, 30],
+      ]);
       render(<App />);
       await pasteImage();
       await userEvent.click(screen.getByText(/^Next: Pick your colors/));
-      const chips = [...document.querySelectorAll<HTMLElement>('.suggestions__item .swatches__item')].map((chip) => chip.dataset.hex);
+      const chips = [
+        ...document.querySelectorAll<HTMLElement>('.suggestions__item .swatches__item'),
+      ].map((chip) => chip.dataset.hex);
       expect(new Set(chips).size).toBeGreaterThan(2);
     });
   });
 
   describe('the four-color palette limit', () => {
-    // The two least common colors must not match anything else on screen (red's complement is #33cccc, so avoid it).
-    const SIX: [string, number][] = [['#cc3333', 30], ['#33cc33', 25], ['#3333cc', 20], ['#cccc33', 12], ['#cc8833', 8], ['#8833cc', 5]];
-    const paletteSize = () => document.querySelectorAll<HTMLElement>('.palette .swatches__item').length;
-    const toStep = (label: string) => userEvent.click(screen.getByText(new RegExp(`^Next: ${label}`)));
+    // The two least common colors must not match anything else on screen (red's complement is
+    // #33cccc, so avoid it).
+    const SIX: [string, number][] = [
+      ['#cc3333', 30],
+      ['#33cc33', 25],
+      ['#3333cc', 20],
+      ['#cccc33', 12],
+      ['#cc8833', 8],
+      ['#8833cc', 5],
+    ];
+    const paletteSize = () =>
+      document.querySelectorAll<HTMLElement>('.palette .swatches__item').length;
+    const toStep = (label: string) =>
+      userEvent.click(screen.getByText(new RegExp(`^Next: ${label}`)));
 
     it('adds only the four most common image colors and says so', async () => {
       installFakeImage(SIX);
@@ -764,7 +910,8 @@ describe('App with colors picked from an image', () => {
 
       await toStep('Pick your colors');
       expect(screen.getByText(/4 of 4 colors in your palette/)).toBeTruthy();
-      // the two least common colors were left out of the palette (they may still appear as suggestions)
+      // the two least common colors were left out of the palette (they may still appear as
+      // suggestions)
       expect(stackColors()).toEqual(['#cc3333', '#33cc33', '#3333cc', '#cccc33']);
     });
 
@@ -786,11 +933,15 @@ describe('App with colors picked from an image', () => {
       await toStep('Pick your colors');
 
       // full: every wheel color that is not in the palette is locked...
-      const locked = () => [...document.querySelectorAll<HTMLElement>('.harmony .swatches__item--locked')];
+      const locked = () => [
+        ...document.querySelectorAll<HTMLElement>('.harmony .swatches__item--locked'),
+      ];
       expect(locked().length).toBeGreaterThan(0);
       // ...but the pairings are all available
       expect(screen.queryByText('No room')).toBeNull();
-      screen.getAllByText('Choose').forEach((button) => expect(button.closest('button')!.disabled).toBe(false));
+      screen
+        .getAllByText('Choose')
+        .forEach((button) => expect(button.closest('button')!.disabled).toBe(false));
 
       const lockedHex = locked()[0].dataset.hex;
       await userEvent.click(locked()[0]); // does nothing
@@ -811,7 +962,10 @@ describe('App with colors picked from an image', () => {
       Element.prototype.setPointerCapture = () => {};
       Element.prototype.releasePointerCapture = () => {};
       Element.prototype.scrollIntoView = () => {};
-      installFakeImage([['#808080', 70], ['#cc3333', 30]]); // a grey base gives a five-color square scheme
+      installFakeImage([
+        ['#808080', 70],
+        ['#cc3333', 30],
+      ]); // a grey base gives a five-color square scheme
       render(<App />);
       await pasteImage();
       await userEvent.click(screen.getByText(/^Next: Pick your colors/));
@@ -847,16 +1001,25 @@ describe('App with colors picked from an image', () => {
       await pasteImage();
       await addAll();
       await userEvent.click(screen.getByText(/^Next: Pick your colors/));
-      expect(document.querySelectorAll<HTMLElement>('.harmony .swatches__item').length).toBeGreaterThan(1);
-      expect(document.querySelectorAll<HTMLElement>('.stack__segment[data-hex]').length).toBeGreaterThan(0);
-      expect(document.querySelectorAll<HTMLElement>('.suggestions__item .swatches__item').length).toBeGreaterThan(0);
+      expect(
+        document.querySelectorAll<HTMLElement>('.harmony .swatches__item').length,
+      ).toBeGreaterThan(1);
+      expect(
+        document.querySelectorAll<HTMLElement>('.stack__segment[data-hex]').length,
+      ).toBeGreaterThan(0);
+      expect(
+        document.querySelectorAll<HTMLElement>('.suggestions__item .swatches__item').length,
+      ).toBeGreaterThan(0);
       noRing();
     });
 
     it('gives every selected color the same marking: the selected style, with a check, and nothing else', async () => {
       render(<App />);
-      await userEvent.click(screen.getByText(/^Next: Pick your colors/)); // both wheel colors are auto-selected
-      const selected = [...document.querySelectorAll<HTMLElement>('.harmony .swatches__item')].filter((el) => el.getAttribute('aria-pressed') === 'true');
+      // both wheel colors are auto-selected
+      await userEvent.click(screen.getByText(/^Next: Pick your colors/));
+      const selected = [
+        ...document.querySelectorAll<HTMLElement>('.harmony .swatches__item'),
+      ].filter((el) => el.getAttribute('aria-pressed') === 'true');
       expect(selected).toHaveLength(2);
       selected.forEach((el) => {
         expect(el.className).toContain('swatches__item--selected');
@@ -879,12 +1042,15 @@ describe('App with colors picked from an image', () => {
       installFakeImage();
       render(<App />);
       await pasteImage();
-      expect(document.querySelectorAll<HTMLElement>('.source__colors .swatches__item--active')).toHaveLength(1);
+      expect(
+        document.querySelectorAll<HTMLElement>('.source__colors .swatches__item--active'),
+      ).toHaveLength(1);
     });
   });
 
   describe('the progress bar after a new image', () => {
-    const bar = (n: number) => screen.getByRole<HTMLButtonElement>('button', { name: new RegExp(`^Step ${n}:`) });
+    const bar = (n: number) =>
+      screen.getByRole<HTMLButtonElement>('button', { name: new RegExp(`^Step ${n}:`) });
 
     it('keeps step 2 reachable but locks step 3, which was built on the old image', async () => {
       installFakeImage();
@@ -896,7 +1062,10 @@ describe('App with colors picked from an image', () => {
 
       await userEvent.click(bar(1));
       vi.restoreAllMocks();
-      installFakeImage([['#cc8833', 70], ['#8833cc', 30]]);
+      installFakeImage([
+        ['#cc8833', 70],
+        ['#8833cc', 30],
+      ]);
       await pasteImage();
 
       expect(bar(2).disabled).toBe(false);
@@ -910,17 +1079,22 @@ describe('App with colors picked from an image', () => {
       await userEvent.click(screen.getByText(/^Next: Pick your colors/));
       await userEvent.click(bar(1));
       vi.restoreAllMocks();
-      installFakeImage([['#cc8833', 70], ['#8833cc', 30]]);
+      installFakeImage([
+        ['#cc8833', 70],
+        ['#8833cc', 30],
+      ]);
       await pasteImage();
       await userEvent.click(bar(2));
-      expect(document.querySelector<HTMLElement>('.harmony .swatches__item')!.dataset.hex).toBe('#cc8833');
+      expect(document.querySelector<HTMLElement>('.harmony .swatches__item')!.dataset.hex).toBe(
+        '#cc8833',
+      );
     });
   });
 
   describe('random colors and a loaded image', () => {
     const randomRow = () => document.querySelectorAll('.source__random .swatches__item');
 
-    it('are replaced by the image\'s own colors once an image is loaded', async () => {
+    it("are replaced by the image's own colors once an image is loaded", async () => {
       installFakeImage();
       render(<App />);
       expect(randomRow()).toHaveLength(6);
@@ -939,14 +1113,17 @@ describe('App with colors picked from an image', () => {
   });
 
   describe('the color field with an image loaded', () => {
-    const css = (hex: string) => `rgb(${parseInt(hex.slice(1, 3), 16)}, ${parseInt(hex.slice(3, 5), 16)}, ${parseInt(hex.slice(5, 7), 16)})`;
+    const css = (hex: string) =>
+      `rgb(${parseInt(hex.slice(1, 3), 16)}, ${parseInt(hex.slice(3, 5), 16)}, ${parseInt(hex.slice(5, 7), 16)})`;
 
     it('stays in the same place, showing the image color as a dot and as text', async () => {
       installFakeImage();
       render(<App />);
       await pasteImage();
       expect(document.querySelectorAll('.color-picker')).toHaveLength(1);
-      expect(document.querySelector<HTMLElement>('.color-picker__dot')!.style.backgroundColor).toBe(css(RED));
+      expect(document.querySelector<HTMLElement>('.color-picker__dot')!.style.backgroundColor).toBe(
+        css(RED),
+      );
       expect(screen.getByLabelText<HTMLInputElement>('Hex value').value).toBe(RED);
       expect(document.querySelector('.color-picker__swatch')).toBeNull();
     });
@@ -961,7 +1138,9 @@ describe('App with colors picked from an image', () => {
       expect(field().value).toBe('#3366cc');
       await pasteImage();
       expect(field().value).toBe(RED);
-      expect(screen.getByTitle<HTMLButtonElement>(`Use ${RED}`).getAttribute('aria-current')).toBe('true');
+      expect(screen.getByTitle<HTMLButtonElement>(`Use ${RED}`).getAttribute('aria-current')).toBe(
+        'true',
+      );
     });
 
     it('replaces a color the user typed or picked earlier', async () => {
@@ -980,13 +1159,22 @@ describe('App with colors picked from an image', () => {
       expect(field().value).toBe(RED);
 
       vi.restoreAllMocks();
-      installFakeImage([[BLUE, 70], [GREEN, 30]]);
+      installFakeImage([
+        [BLUE, 70],
+        [GREEN, 30],
+      ]);
       await pasteImage();
       expect(field().value).toBe(BLUE);
     });
 
     it('leaves the color alone when nothing can be extracted (e.g. a fully transparent image)', async () => {
-      installFakeImage([[RED, 50], [GREEN, 50]], 0);
+      installFakeImage(
+        [
+          [RED, 50],
+          [GREEN, 50],
+        ],
+        0,
+      );
       render(<App />);
       await pasteImage({ expectColors: false });
       expect(field().value).toBe('#3366cc');

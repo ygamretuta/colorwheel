@@ -39,7 +39,9 @@ export default function ImageSource({ hex, onPick, onImageLoaded, onAddAll }: Im
     const scale = Math.min(1, MAX_SIDE / Math.max(width, height));
     canvas.width = Math.round(width * scale);
     canvas.height = Math.round(height * scale);
-    canvas.getContext('2d', { willReadFrequently: true })?.drawImage(source, 0, 0, canvas.width, canvas.height);
+    canvas
+      .getContext('2d', { willReadFrequently: true })
+      ?.drawImage(source, 0, 0, canvas.width, canvas.height);
     setHasImage(true);
     const pixels = readSmallImageData(canvas);
     const colors = pixels ? extractPalette(pixels, PALETTE_SIZE) : [];
@@ -63,10 +65,13 @@ export default function ImageSource({ hex, onPick, onImageLoaded, onAddAll }: Im
   }
 
   async function captureScreen() {
-    // Insecure pages and many mobile browsers have no mediaDevices or no getDisplayMedia, though the types say they always do.
+    // Insecure pages and many mobile browsers have no mediaDevices or no getDisplayMedia, though
+    // the types say they always do.
     const devices = navigator.mediaDevices as Partial<MediaDevices> | undefined;
     if (typeof devices?.getDisplayMedia !== 'function') {
-      setStatus('Screen capture is not supported in this browser. Paste a screenshot or upload an image instead.');
+      setStatus(
+        'Screen capture is not supported in this browser. Paste a screenshot or upload an image instead.',
+      );
       return;
     }
     let stream: MediaStream | undefined;
@@ -97,7 +102,9 @@ export default function ImageSource({ hex, onPick, onImageLoaded, onAddAll }: Im
 
   // An Effect Event always sees the latest loadBlob without re-subscribing the listener.
   const onPaste = useEffectEvent((event: ClipboardEvent) => {
-    const item = [...(event.clipboardData?.items ?? [])].find((entry) => entry.type.startsWith('image/'));
+    const item = [...(event.clipboardData?.items ?? [])].find((entry) =>
+      entry.type.startsWith('image/'),
+    );
     const file = item?.getAsFile();
     if (file) void loadBlob(file);
   });
@@ -116,33 +123,56 @@ export default function ImageSource({ hex, onPick, onImageLoaded, onAddAll }: Im
 
   return (
     <div className="source">
-        <div className="source__actions">
-          <Button className="source__button" onClick={() => fileRef.current?.click()}>Upload or take photo</Button>
-          <input
-            ref={fileRef}
-            className="source__file"
-            type="file"
-            accept="image/*"
-            data-testid="file"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) void loadBlob(file);
-              event.target.value = '';
-            }}
-          />
-          <Button className="source__button" onClick={captureScreen}>Capture screen</Button>
-          {HAS_EYEDROPPER && <Button className="source__button" variant="outline" onClick={useEyedropper}>Eyedropper</Button>}
-        </div>
-        <div className={`source__stage${hasImage ? '' : ' source__stage--empty'}`}>
-          {!hasImage && <p className="source__hint">Choose a source, or paste a screenshot (Ctrl/⌘+V).</p>}
-          <canvas ref={canvasRef} className="source__canvas" hidden={!hasImage} onClick={handleCanvasClick} />
-        </div>
-        {extracted.length > 0 ? (
-          <ExtractedColors key={imageVersion} colors={extracted} activeHex={hex} onPick={onPick} onAdd={onAddAll} />
-        ) : (
-          <RandomColors activeHex={hex} onPick={onPick} />
+      <div className="source__actions">
+        <Button className="source__button" onClick={() => fileRef.current?.click()}>
+          Upload or take photo
+        </Button>
+        <input
+          ref={fileRef}
+          className="source__file"
+          type="file"
+          accept="image/*"
+          data-testid="file"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) void loadBlob(file);
+            event.target.value = '';
+          }}
+        />
+        <Button className="source__button" onClick={captureScreen}>
+          Capture screen
+        </Button>
+        {HAS_EYEDROPPER && (
+          <Button className="source__button" variant="outline" onClick={useEyedropper}>
+            Eyedropper
+          </Button>
         )}
-        <p className="source__status" role="status">{status}</p>
+      </div>
+      <div className={`source__stage${hasImage ? '' : ' source__stage--empty'}`}>
+        {!hasImage && (
+          <p className="source__hint">Choose a source, or paste a screenshot (Ctrl/⌘+V).</p>
+        )}
+        <canvas
+          ref={canvasRef}
+          className="source__canvas"
+          hidden={!hasImage}
+          onClick={handleCanvasClick}
+        />
+      </div>
+      {extracted.length > 0 ? (
+        <ExtractedColors
+          key={imageVersion}
+          colors={extracted}
+          activeHex={hex}
+          onPick={onPick}
+          onAdd={onAddAll}
+        />
+      ) : (
+        <RandomColors activeHex={hex} onPick={onPick} />
+      )}
+      <p className="source__status" role="status">
+        {status}
+      </p>
     </div>
   );
 }

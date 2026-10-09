@@ -23,6 +23,8 @@ describe('lab', () => {
   it('measures distance: identical = 0, near < far', () => {
     const a = rgbToLab({ r: 200, g: 50, b: 50 });
     expect(deltaE(a, a)).toBe(0);
-    expect(deltaE(a, rgbToLab({ r: 202, g: 52, b: 50 }))).toBeLessThan(deltaE(a, rgbToLab({ r: 30, g: 30, b: 200 })));
+    expect(deltaE(a, rgbToLab({ r: 202, g: 52, b: 50 }))).toBeLessThan(
+      deltaE(a, rgbToLab({ r: 30, g: 30, b: 200 })),
+    );
   });
 });

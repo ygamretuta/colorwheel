@@ -17,4 +17,3 @@ describe('contrast', () => {
     expect(contrastRatio(adjusted, '#6688cc')).toBeGreaterThanOrEqual(3);
   });
 });
-

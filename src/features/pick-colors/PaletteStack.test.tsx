@@ -3,20 +3,31 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import PaletteStack from './PaletteStack';
 
-const segments = (container: HTMLElement) => [...container.querySelectorAll<HTMLElement>('.stack__segment')];
+const segments = (container: HTMLElement) => [
+  ...container.querySelectorAll<HTMLElement>('.stack__segment'),
+];
 const filled = (container: HTMLElement) => segments(container).filter((el) => el.dataset.hex);
-const empty = (container: HTMLElement) => segments(container).filter((el) => el.classList.contains('stack__segment--empty'));
+const empty = (container: HTMLElement) =>
+  segments(container).filter((el) => el.classList.contains('stack__segment--empty'));
 
 describe('PaletteStack', () => {
   it('stacks every color in one bar, in order', () => {
-    const { container } = render(<PaletteStack colors={['#e63946', '#f1faee', '#1d3557']} onRemove={() => {}} />);
+    const { container } = render(
+      <PaletteStack colors={['#e63946', '#f1faee', '#1d3557']} onRemove={() => {}} />,
+    );
     expect(container.querySelectorAll<HTMLElement>('.stack__bar')).toHaveLength(1);
-    expect(filled(container).map((el) => el.dataset.hex)).toEqual(['#e63946', '#f1faee', '#1d3557']);
+    expect(filled(container).map((el) => el.dataset.hex)).toEqual([
+      '#e63946',
+      '#f1faee',
+      '#1d3557',
+    ]);
     filled(container).forEach((el) => expect(el.closest('.stack__bar')).toBeTruthy());
   });
 
   it('paints each segment with its color and a readable label', () => {
-    const { container } = render(<PaletteStack colors={['#ffffff', '#000000']} onRemove={() => {}} />);
+    const { container } = render(
+      <PaletteStack colors={['#ffffff', '#000000']} onRemove={() => {}} />,
+    );
     const [light, dark] = filled(container);
     expect(light.style.backgroundColor).toBe('rgb(255, 255, 255)');
     expect(light.style.color).toBe('rgb(0, 0, 0)'); // dark text on a light color
@@ -34,7 +45,9 @@ describe('PaletteStack', () => {
   });
 
   it('has no empty slots when the palette is full', () => {
-    const { container } = render(<PaletteStack colors={['#111111', '#222222', '#333333', '#444444']} onRemove={() => {}} />);
+    const { container } = render(
+      <PaletteStack colors={['#111111', '#222222', '#333333', '#444444']} onRemove={() => {}} />,
+    );
     expect(empty(container)).toHaveLength(0);
     expect(segments(container)).toHaveLength(4);
   });
@@ -68,8 +81,14 @@ describe('PaletteStack', () => {
   });
 
   it('never exceeds four places even if given too many colors', () => {
-    const { container } = render(<PaletteStack colors={['#111111', '#222222', '#333333', '#444444', '#555555']} onRemove={() => {}} />);
+    const { container } = render(
+      <PaletteStack
+        colors={['#111111', '#222222', '#333333', '#444444', '#555555']}
+        onRemove={() => {}}
+      />,
+    );
     expect(empty(container)).toHaveLength(0);
-    expect(filled(container)).toHaveLength(5); // it shows what it is given; the limit is enforced by the palette state
+    // it shows what it is given; the limit is enforced by the palette state
+    expect(filled(container)).toHaveLength(5);
   });
 });

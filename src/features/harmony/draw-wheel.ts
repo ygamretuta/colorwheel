@@ -3,9 +3,14 @@ import { hueOf } from './harmony';
 
 /**
  * Draw a hue ring and mark each color's hue; the first color is the base. `others` are the user's
- * remaining chosen colors, drawn as small dots (inside the harmony points) so the whole combination shows.
+ * remaining chosen colors, drawn as small dots (inside the harmony points) so the whole combination
+ * shows.
  */
-export function drawWheel(canvas: HTMLCanvasElement, colors: string[], others: string[] = []): void {
+export function drawWheel(
+  canvas: HTMLCanvasElement,
+  colors: string[],
+  others: string[] = [],
+): void {
   const context = canvas.getContext('2d');
   if (!context) return;
   const { width, height } = canvas;
@@ -20,11 +25,18 @@ export function drawWheel(canvas: HTMLCanvasElement, colors: string[], others: s
   for (let degree = 0; degree < 360; degree += 1) {
     context.beginPath();
     context.strokeStyle = hslToHex({ h: degree, s: 85, l: 55 });
-    context.arc(center.x, center.y, middle, ((degree - 90.6) * Math.PI) / 180, ((degree - 88.8) * Math.PI) / 180);
+    context.arc(
+      center.x,
+      center.y,
+      middle,
+      ((degree - 90.6) * Math.PI) / 180,
+      ((degree - 88.8) * Math.PI) / 180,
+    );
     context.stroke();
   }
 
-  // Greys, whites and blacks have no hue, so they sit at the centre instead of at a meaningless angle.
+  // Greys, whites and blacks have no hue, so they sit at the centre instead of at a meaningless
+  // angle.
   const position = (hex: string, radius: number) => {
     if (isNeutral(hex)) return { x: center.x, y: center.y };
     const angle = ((hueOf(hex) - 90) * Math.PI) / 180;

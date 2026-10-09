@@ -31,8 +31,15 @@ describe('suggestPairings', () => {
   });
 
   it('offers the full scheme only for wheel types with three or more partners', () => {
-    expect(suggestPairings(BASE, 'complementary').map((s) => s.id)).toEqual(['best-match', 'balanced-pair']);
-    expect(suggestPairings(BASE, 'square').map((s) => s.id)).toEqual(['best-match', 'balanced-pair', 'full-scheme']);
+    expect(suggestPairings(BASE, 'complementary').map((s) => s.id)).toEqual([
+      'best-match',
+      'balanced-pair',
+    ]);
+    expect(suggestPairings(BASE, 'square').map((s) => s.id)).toEqual([
+      'best-match',
+      'balanced-pair',
+      'full-scheme',
+    ]);
   });
 
   it('draws colors from the selected scheme: triadic partners are 120° apart, not complements', () => {
@@ -51,7 +58,9 @@ describe('suggestPairings', () => {
     const complementary = suggestPairings('#808080', 'complementary');
     const triadic = suggestPairings('#808080', 'triadic');
     expect(complementary).not.toEqual(triadic);
-    [...complementary, ...triadic].forEach((s) => s.colors.forEach((c) => expect(c).toMatch(/^#[0-9a-f]{6}$/)));
+    [...complementary, ...triadic].forEach((s) =>
+      s.colors.forEach((c) => expect(c).toMatch(/^#[0-9a-f]{6}$/)),
+    );
   });
 
   it('rejects invalid input', () => {
@@ -66,12 +75,15 @@ describe('suggestPairings with the other chosen colors', () => {
 
   it('is unchanged when no other colors are chosen', () => {
     expect(suggestPairings(BASE, 'triadic', [])).toEqual(suggestPairings(BASE, 'triadic'));
-    expect(suggestPairings(BASE, 'triadic', [BASE, 'nope'])).toEqual(suggestPairings(BASE, 'triadic'));
+    expect(suggestPairings(BASE, 'triadic', [BASE, 'nope'])).toEqual(
+      suggestPairings(BASE, 'triadic'),
+    );
   });
 
   it('puts the partner that several chosen colors agree on first', () => {
     const [best] = suggestPairings('#ff0000', 'triadic', COMBO);
-    expect(Math.abs(hue(best.colors[0]) - 240)).toBeLessThanOrEqual(12); // blue: the triadic partner of both red and green
+    // blue: the triadic partner of both red and green
+    expect(Math.abs(hue(best.colors[0]) - 240)).toBeLessThanOrEqual(12);
     expect(best.reason).toMatch(/2 of your 2 colors agree/);
   });
 
@@ -85,7 +97,11 @@ describe('suggestPairings with the other chosen colors', () => {
   it('never offers a color that just repeats one already chosen', () => {
     const chosen = ['#cc9933', '#33cc4c', '#cc33b2'];
     suggestPairings(BASE, 'square', chosen).forEach(({ colors }) =>
-      colors.forEach((color) => [BASE, ...chosen].forEach((taken) => expect(deltaE(lab(color), lab(taken))).toBeGreaterThanOrEqual(10))),
+      colors.forEach((color) =>
+        [BASE, ...chosen].forEach((taken) =>
+          expect(deltaE(lab(color), lab(taken))).toBeGreaterThanOrEqual(10),
+        ),
+      ),
     );
   });
 
@@ -98,7 +114,9 @@ describe('suggestPairings with the other chosen colors', () => {
   });
 
   it('works when every color is grey, falling back to the neutral-friendly suggestions', () => {
-    expect(suggestPairings('#808080', 'triadic', ['#cccccc'])).toEqual(suggestPairings('#808080', 'triadic'));
+    expect(suggestPairings('#808080', 'triadic', ['#cccccc'])).toEqual(
+      suggestPairings('#808080', 'triadic'),
+    );
   });
 
   it('treats grey context as a constraint, not a source of partners', () => {
@@ -108,12 +126,17 @@ describe('suggestPairings with the other chosen colors', () => {
   });
 
   it('offers shades instead of repeats when the chosen colors already complete the scheme', () => {
-    const complete = ['#cc9933', '#33cc4c', '#cc33b2']; // with #3366cc these are the whole square scheme
+    // with #3366cc these are the whole square scheme
+    const complete = ['#cc9933', '#33cc4c', '#cc33b2'];
     const result = suggestPairings(BASE, 'square', complete);
     expect(result[0].label).toBe('Add depth');
     expect(result[0].reason).toMatch(/already complete the square scheme/);
     result.forEach(({ colors }) =>
-      colors.forEach((color) => [BASE, ...complete].forEach((taken) => expect(deltaE(lab(color), lab(taken))).toBeGreaterThanOrEqual(15))),
+      colors.forEach((color) =>
+        [BASE, ...complete].forEach((taken) =>
+          expect(deltaE(lab(color), lab(taken))).toBeGreaterThanOrEqual(15),
+        ),
+      ),
     );
   });
 
@@ -121,7 +144,9 @@ describe('suggestPairings with the other chosen colors', () => {
     Object.keys(HARMONIES).forEach((type) => {
       const result = suggestPairings(BASE, type, ['#e63946', '#f1faee']);
       expect(result.length).toBeGreaterThanOrEqual(1);
-      result.forEach(({ colors }) => colors.forEach((color) => expect(color).toMatch(/^#[0-9a-f]{6}$/)));
+      result.forEach(({ colors }) =>
+        colors.forEach((color) => expect(color).toMatch(/^#[0-9a-f]{6}$/)),
+      );
     });
   });
 });

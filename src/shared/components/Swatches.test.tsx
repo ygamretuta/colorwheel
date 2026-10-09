@@ -6,7 +6,9 @@ import Swatches from './Swatches';
 describe('Swatches', () => {
   it('renders BEM swatches and reports selection', async () => {
     const onSelect = vi.fn();
-    const { container } = render(<Swatches colors={['#ff0000', '#00ff00']} activeHex="#ff0000" onSelect={onSelect} />);
+    const { container } = render(
+      <Swatches colors={['#ff0000', '#00ff00']} activeHex="#ff0000" onSelect={onSelect} />,
+    );
     const items = container.querySelectorAll<HTMLElement>('.swatches__item');
     expect(items).toHaveLength(2);
     expect(items[0].classList.contains('swatches__item--active')).toBe(true);
@@ -27,7 +29,12 @@ describe('Swatches as toggles', () => {
 describe('Swatches active vs selected', () => {
   it('tells the current color apart from selected colors, and allows both', () => {
     const { container } = render(
-      <Swatches colors={['#ff0000', '#00ff00', '#0000ff']} activeHex="#ff0000" selected={['#ff0000', '#0000ff']} onSelect={() => {}} />,
+      <Swatches
+        colors={['#ff0000', '#00ff00', '#0000ff']}
+        activeHex="#ff0000"
+        selected={['#ff0000', '#0000ff']}
+        onSelect={() => {}}
+      />,
     );
     const [red, green, blue] = container.querySelectorAll<HTMLElement>('.swatches__item');
     expect(red.className).toContain('swatches__item--active');
@@ -43,14 +50,24 @@ describe('Swatches active vs selected', () => {
 describe('Swatches disabledColors', () => {
   it('shows disabled colors dimmed and does not let them be tapped', async () => {
     const onSelect = vi.fn();
-    render(<Swatches colors={['#ff0000', '#00ff00']} selected={['#ff0000']} onSelect={onSelect} disabledColors={['#00ff00']} />);
-    const locked = screen.getByTitle<HTMLButtonElement>(/Palette is full: remove a color to add #00ff00/);
+    render(
+      <Swatches
+        colors={['#ff0000', '#00ff00']}
+        selected={['#ff0000']}
+        onSelect={onSelect}
+        disabledColors={['#00ff00']}
+      />,
+    );
+    const locked = screen.getByTitle<HTMLButtonElement>(
+      /Palette is full: remove a color to add #00ff00/,
+    );
     expect(locked.disabled).toBe(true);
     expect(locked.className).toContain('swatches__item--locked');
     await userEvent.click(locked);
     expect(onSelect).not.toHaveBeenCalled();
 
-    await userEvent.click(screen.getByTitle<HTMLButtonElement>('Remove #ff0000')); // selected colors can always be removed
+    // selected colors can always be removed
+    await userEvent.click(screen.getByTitle<HTMLButtonElement>('Remove #ff0000'));
     expect(onSelect).toHaveBeenCalledWith('#ff0000');
   });
 

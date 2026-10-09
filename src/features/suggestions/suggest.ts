@@ -7,9 +7,12 @@ const MATCH_CONTRAST = 3;
 const SCHEME_CONTRAST = 1.5;
 const MAX_SCHEME_COLORS = 3;
 const NEUTRAL_ACCENT_HUE = 210;
-const NEW_COLOR_DELTA_E = 15; // a suggestion must differ at least this much from every color already chosen
-const SAME_PARTNER_DELTA_E = 12; // partners this close, from different colors, count as one shared partner
-const DISTINCT_PARTNER_DELTA_E = 20; // two suggested partners should look clearly different from each other
+// a suggestion must differ at least this much from every color already chosen
+const NEW_COLOR_DELTA_E = 15;
+// partners this close, from different colors, count as one shared partner
+const SAME_PARTNER_DELTA_E = 12;
+// two suggested partners should look clearly different from each other
+const DISTINCT_PARTNER_DELTA_E = 20;
 
 /** One pairing idea: the partner colors to add to the base (the base itself is not included). */
 export interface Suggestion {
@@ -19,7 +22,10 @@ export interface Suggestion {
   colors: string[];
 }
 
-/** A possible partner color, with the chosen colors that "voted" for it and how far it sits from all of them. */
+/**
+ * A possible partner color, with the chosen colors that "voted" for it and how far it sits from all
+ * of them.
+ */
 interface Partner {
   hex: string;
   lab: Lab;
@@ -28,7 +34,10 @@ interface Partner {
 
 const toLab = (hex: string): Lab => rgbToLab(hexToRgb(hex));
 
-const byContrastWith = (base: string) => (a: string, b: string): number => contrastRatio(b, base) - contrastRatio(a, base);
+const byContrastWith =
+  (base: string) =>
+  (a: string, b: string): number =>
+    contrastRatio(b, base) - contrastRatio(a, base);
 
 /** A lighter or darker shade of `hex`, whichever stays distinct from it. */
 function softTint(hex: string): string {
@@ -48,8 +57,9 @@ function suggestForBase(hex: string, harmony: string): Suggestion[] {
   const { l } = hexToHsl(base);
   const anchor = neutral ? hslToHex({ h: NEUTRAL_ACCENT_HUE, s: 65, l: l > 50 ? 35 : 65 }) : base;
   const scheme_colors = generateHarmony(anchor, harmony);
-  const partners = (neutral ? scheme_colors : scheme_colors.slice(1))
-    .map((color) => ensureContrast(color, base, SCHEME_CONTRAST));
+  const partners = (neutral ? scheme_colors : scheme_colors.slice(1)).map((color) =>
+    ensureContrast(color, base, SCHEME_CONTRAST),
+  );
 
   const ranked = [...partners].sort(byContrastWith(base));
   const name = scheme.label.toLowerCase();
@@ -97,17 +107,25 @@ function rankPartnersForSet(anchors: string[], harmony: string): (Partner & { sp
 
   anchors.forEach((anchor, anchorIndex) => {
     if (isNeutral(anchor)) return; // greys have no hue to build a scheme from
-    generateHarmony(anchor, harmony).slice(1).forEach((hex) => {
-      const lab = toLab(hex);
-      if (anchorLabs.some((anchorLab) => deltaE(anchorLab, lab) < NEW_COLOR_DELTA_E)) return; // adds nothing new
-      const match = candidates.find((candidate) => deltaE(candidate.lab, lab) < SAME_PARTNER_DELTA_E);
-      if (match) match.votes.add(anchorIndex);
-      else candidates.push({ hex, lab, votes: new Set([anchorIndex]) });
-    });
+    generateHarmony(anchor, harmony)
+      .slice(1)
+      .forEach((hex) => {
+        const lab = toLab(hex);
+        // adds nothing new
+        if (anchorLabs.some((anchorLab) => deltaE(anchorLab, lab) < NEW_COLOR_DELTA_E)) return;
+        const match = candidates.find(
+          (candidate) => deltaE(candidate.lab, lab) < SAME_PARTNER_DELTA_E,
+        );
+        if (match) match.votes.add(anchorIndex);
+        else candidates.push({ hex, lab, votes: new Set([anchorIndex]) });
+      });
   });
 
   return candidates
-    .map((candidate) => ({ ...candidate, spread: Math.min(...anchorLabs.map((anchorLab) => deltaE(anchorLab, candidate.lab))) }))
+    .map((candidate) => ({
+      ...candidate,
+      spread: Math.min(...anchorLabs.map((anchorLab) => deltaE(anchorLab, candidate.lab))),
+    }))
     .sort((a, b) => b.votes.size - a.votes.size || b.spread - a.spread);
 }
 
@@ -122,7 +140,9 @@ function suggestShades(anchors: string[], name: string): Suggestion[] | null {
     const { h, s, l } = hexToHsl(anchor);
     [softTint(anchor), hslToHex({ h, s, l: l > 55 ? l - 38 : l + 38 })].forEach((hex) => {
       const lab = toLab(hex);
-      const isNew = [...taken, ...picked.map((p) => p.lab)].every((other) => deltaE(other, lab) >= NEW_COLOR_DELTA_E);
+      const isNew = [...taken, ...picked.map((p) => p.lab)].every(
+        (other) => deltaE(other, lab) >= NEW_COLOR_DELTA_E,
+      );
       if (isNew && picked.length < MAX_SCHEME_COLORS) picked.push({ hex, lab });
     });
   });
@@ -151,26 +171,38 @@ function suggestShades(anchors: string[], name: string): Suggestion[] | null {
  *
  * Returns [{ id, label, reason, colors }]; `colors` excludes the base.
  */
-export function suggestPairings(hex: string, harmony = 'complementary', context: string[] = []): Suggestion[] {
+export function suggestPairings(
+  hex: string,
+  harmony = 'complementary',
+  context: string[] = [],
+): Suggestion[] {
   const base = normalizeHex(hex);
   if (!base) throw new Error(`Invalid hex color: ${hex}`);
   const scheme = findHarmony(harmony);
   if (!scheme) throw new Error(`Unknown harmony: ${harmony}`);
 
-  const others = [...new Set(context.map(normalizeHex).filter((color): color is string => color !== null && color !== base))];
+  const others = [
+    ...new Set(
+      context
+        .map(normalizeHex)
+        .filter((color): color is string => color !== null && color !== base),
+    ),
+  ];
   if (others.length === 0) return suggestForBase(base, harmony);
 
   const anchors = [base, ...others];
   const name = scheme.label.toLowerCase();
   const hasHue = anchors.some((color) => !isNeutral(color));
-  if (!hasHue) return suggestForBase(base, harmony); // all greys: use the neutral-friendly accent path
+  // all greys: use the neutral-friendly accent path
+  if (!hasHue) return suggestForBase(base, harmony);
 
   const ranked = rankPartnersForSet(anchors, harmony);
   if (ranked.length === 0) return suggestShades(anchors, name) ?? suggestForBase(base, harmony);
 
   const count = others.length + 1;
   const [first] = ranked;
-  const fits = first.votes.size > 1 ? `, and ${first.votes.size} of your ${count} colors agree on it` : '';
+  const fits =
+    first.votes.size > 1 ? `, and ${first.votes.size} of your ${count} colors agree on it` : '';
   const suggestions: Suggestion[] = [
     {
       id: 'best-match',
@@ -180,7 +212,9 @@ export function suggestPairings(hex: string, harmony = 'complementary', context:
     },
   ];
 
-  const second = ranked.slice(1).find((candidate) => deltaE(candidate.lab, first.lab) >= DISTINCT_PARTNER_DELTA_E);
+  const second = ranked
+    .slice(1)
+    .find((candidate) => deltaE(candidate.lab, first.lab) >= DISTINCT_PARTNER_DELTA_E);
   if (second) {
     suggestions.push({
       id: 'balanced-pair',
@@ -199,7 +233,8 @@ export function suggestPairings(hex: string, harmony = 'complementary', context:
 
   const spread: Partner[] = [];
   for (const candidate of ranked) {
-    if (spread.every((chosen) => deltaE(chosen.lab, candidate.lab) >= DISTINCT_PARTNER_DELTA_E)) spread.push(candidate);
+    if (spread.every((chosen) => deltaE(chosen.lab, candidate.lab) >= DISTINCT_PARTNER_DELTA_E))
+      spread.push(candidate);
     if (spread.length === MAX_SCHEME_COLORS) break;
   }
   if (spread.length > 2) {

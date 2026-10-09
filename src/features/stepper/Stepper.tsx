@@ -9,7 +9,10 @@ interface ResetButtonProps {
   onReset: () => void;
 }
 
-/** Two-tap reset: the first tap asks for confirmation, the second resets. Disarms itself after a few seconds. */
+/**
+ * Two-tap reset: the first tap asks for confirmation, the second resets. Disarms itself after a few
+ * seconds.
+ */
 function ResetButton({ onReset }: ResetButtonProps) {
   const [armed, setArmed] = useState(false);
 
@@ -47,9 +50,9 @@ interface StepHeaderProps {
 }
 
 /**
- * Progress header for the current step. `onReset`, when given, adds a two-tap Reset button. With `onGoTo`,
- * each segment of the progress bar becomes a button that jumps to that step; steps beyond `furthest` (the
- * furthest step reached so far) stay locked.
+ * Progress header for the current step. `onReset`, when given, adds a two-tap Reset button. With
+ * `onGoTo`, each segment of the progress bar becomes a button that jumps to that step; steps beyond
+ * `furthest` (the furthest step reached so far) stay locked.
  */
 export function StepHeader({ index, furthest = index, onGoTo, onReset }: StepHeaderProps) {
   const { title, hint } = STEPS[index];
@@ -58,11 +61,18 @@ export function StepHeader({ index, furthest = index, onGoTo, onReset }: StepHea
       <div className="stepper__row">
         <h2 className="stepper__title">{title}</h2>
         {onReset && <ResetButton key={index} onReset={onReset} />}
-        <p className="stepper__count">Step {index + 1} of {STEPS.length}</p>
+        <p className="stepper__count">
+          Step {index + 1} of {STEPS.length}
+        </p>
       </div>
       <ol className="stepper__bar" aria-label="Steps">
         {STEPS.map((step, i) => {
-          const state = i <= index ? 'stepper__segment--done' : canVisit(i, furthest) ? 'stepper__segment--visited' : '';
+          const state =
+            i <= index
+              ? 'stepper__segment--done'
+              : canVisit(i, furthest)
+                ? 'stepper__segment--visited'
+                : '';
           return (
             <li key={step.id} className={`stepper__segment ${state}`.trim()}>
               {onGoTo ? (
@@ -92,16 +102,25 @@ interface StepNavProps {
   onRestart?: () => void;
 }
 
-/** Back / Next controls (Start over on the last step), pinned to the bottom of the screen on phones. */
+/**
+ * Back / Next controls (Start over on the last step), pinned to the bottom of the screen on phones.
+ */
 export function StepNav({ index, onBack, onNext, onRestart }: StepNavProps) {
   const last = index === STEPS.length - 1;
   return (
     <nav className="stepper__nav" aria-label="Steps">
-      <Button className="stepper__button" variant="outline" onClick={onBack} disabled={index === 0}>Back</Button>
+      <Button className="stepper__button" variant="outline" onClick={onBack} disabled={index === 0}>
+        Back
+      </Button>
       {last ? (
-        <Button className="stepper__button" onClick={onRestart}>Start over</Button>
+        <Button className="stepper__button" onClick={onRestart}>
+          Start over
+        </Button>
       ) : (
-        <Button className="stepper__button" onClick={onNext}>{`Next: ${STEPS[index + 1].title}`}</Button>
+        <Button
+          className="stepper__button"
+          onClick={onNext}
+        >{`Next: ${STEPS[index + 1].title}`}</Button>
       )}
     </nav>
   );

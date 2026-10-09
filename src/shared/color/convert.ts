@@ -1,5 +1,13 @@
-export interface Rgb { r: number; g: number; b: number }
-export interface Hsl { h: number; s: number; l: number }
+export interface Rgb {
+  r: number;
+  g: number;
+  b: number;
+}
+export interface Hsl {
+  h: number;
+  s: number;
+  l: number;
+}
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -8,7 +16,10 @@ export function normalizeHex(input: unknown): string | null {
   if (!match) return null;
   let digits = match[1].toLowerCase();
   if (digits.length === 3) {
-    digits = digits.split('').map((d) => d + d).join('');
+    digits = digits
+      .split('')
+      .map((d) => d + d)
+      .join('');
   }
   return `#${digits}`;
 }
@@ -85,11 +96,13 @@ export function chroma(hex: string): number {
   return (Math.max(r, g, b) - Math.min(r, g, b)) / 255;
 }
 
-const NEUTRAL_CHROMA = 0.08; // under ~20/255 of channel spread a color reads as grey, white or black
+// under ~20/255 of channel spread a color reads as grey, white or black
+const NEUTRAL_CHROMA = 0.08;
 
 /**
- * True for greys, whites, blacks and tints so faint they have no usable hue. HSL saturation can't be
- * used for this: near-white and near-black colors report a high saturation despite looking neutral.
+ * True for greys, whites, blacks and tints so faint they have no usable hue. HSL saturation can't
+ * be used for this: near-white and near-black colors report a high saturation despite looking
+ * neutral.
  */
 export const isNeutral = (hex: string): boolean => chroma(hex) < NEUTRAL_CHROMA;
 

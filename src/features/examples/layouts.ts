@@ -30,7 +30,10 @@ export const POSTER_RECTS: Block[] = [
 ];
 
 /** Share of the canvas covered by each role (the dominant background shows through the rest). */
-export function roleShares(rects: Block[], { width, height } = CANVAS): { dominant: number; secondary: number; accent: number } {
+export function roleShares(
+  rects: Block[],
+  { width, height } = CANVAS,
+): { dominant: number; secondary: number; accent: number } {
   const total = width * height;
   const covered: Record<Role, number> = { secondary: 0, accent: 0 };
   rects.forEach(({ role, width: w, height: h }) => {

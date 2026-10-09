@@ -26,7 +26,9 @@ describe('assignRoles', () => {
 
   it('only uses colors from the palette when it is big enough', () => {
     const roles = assignRoles(PALETTE)!;
-    [roles.dark, roles.light, roles.accent, roles.mid].forEach((color) => expect(PALETTE).toContain(color));
+    [roles.dark, roles.light, roles.accent, roles.mid].forEach((color) =>
+      expect(PALETTE).toContain(color),
+    );
   });
 
   it('pads a single color into a usable set of distinct roles', () => {

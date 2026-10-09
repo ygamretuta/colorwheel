@@ -10,8 +10,8 @@ interface RandomColorsProps {
 }
 
 /**
- * A row of random, clearly different colors to start from when there is no image yet. The set is drawn
- * once when the step loads and stays put; "Shuffle" draws a new one. Tap a color to use it.
+ * A row of random, clearly different colors to start from when there is no image yet. The set is
+ * drawn once when the step loads and stays put; "Shuffle" draws a new one. Tap a color to use it.
  */
 export default function RandomColors({ activeHex, onPick }: RandomColorsProps) {
   const [colors, setColors] = useState(() => randomSwatches());
@@ -20,7 +20,13 @@ export default function RandomColors({ activeHex, onPick }: RandomColorsProps) {
     <section className="source__random" aria-label="Random colors">
       <div className="source__random-header">
         <h3 className="source__colors-title">Or start from a color</h3>
-        <Button className="source__shuffle" variant="ghost" size="sm" aria-label="Shuffle random colors" onClick={() => setColors(randomSwatches())}>
+        <Button
+          className="source__shuffle"
+          variant="ghost"
+          size="sm"
+          aria-label="Shuffle random colors"
+          onClick={() => setColors(randomSwatches())}
+        >
           Shuffle
         </Button>
       </div>

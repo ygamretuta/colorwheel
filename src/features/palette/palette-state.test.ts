@@ -15,7 +15,8 @@ import {
 } from './palette-state';
 
 const colors = (n: number) => Array.from({ length: n }, (_, i) => `#${String(i + 1).repeat(6)}`);
-const pick = (state: PaletteState, ...hexes: string[]) => hexes.reduce((current, hex) => togglePick(current, hex), state);
+const pick = (state: PaletteState, ...hexes: string[]) =>
+  hexes.reduce((current, hex) => togglePick(current, hex), state);
 
 describe('picks', () => {
   it('toggles a color on and off', () => {
@@ -66,7 +67,10 @@ describe('choosing a pairing', () => {
 
   it('brings back auto-selected wheel colors when cleared', () => {
     const wheel = ['#111111', '#222222'];
-    const cleared = choosePairing(choosePairing(applyAutoHarmony(EMPTY_PALETTE, wheel), pairing), pairing);
+    const cleared = choosePairing(
+      choosePairing(applyAutoHarmony(EMPTY_PALETTE, wheel), pairing),
+      pairing,
+    );
     expect(paletteColors(cleared)).toEqual(wheel);
   });
 
@@ -83,7 +87,8 @@ describe('choosing a pairing', () => {
 });
 
 describe('editing a palette that is a chosen pairing', () => {
-  const chosen = () => choosePairing(pick(EMPTY_PALETTE, '#111111'), ['#aaaaaa', '#bbbbbb', '#cccccc']);
+  const chosen = () =>
+    choosePairing(pick(EMPTY_PALETTE, '#111111'), ['#aaaaaa', '#bbbbbb', '#cccccc']);
 
   it('removing one of its colors leaves the others as ordinary picks, with no pairing chosen', () => {
     const after = togglePick(chosen(), '#aaaaaa');
@@ -101,14 +106,21 @@ describe('editing a palette that is a chosen pairing', () => {
   });
 
   it('removeColor does the same as unchecking', () => {
-    expect(removeColor(chosen(), '#bbbbbb')).toEqual({ picks: ['#aaaaaa', '#cccccc'], pairing: [], auto: [] });
+    expect(removeColor(chosen(), '#bbbbbb')).toEqual({
+      picks: ['#aaaaaa', '#cccccc'],
+      pairing: [],
+      auto: [],
+    });
   });
 });
 
 describe('addPicks (adding colors from an image)', () => {
   it('adds colors without duplicates, keeping existing picks', () => {
     const start = pick(EMPTY_PALETTE, '#111111');
-    expect(addPicks(start, ['#111111', '#222222', '#222222']).picks).toEqual(['#111111', '#222222']);
+    expect(addPicks(start, ['#111111', '#222222', '#222222']).picks).toEqual([
+      '#111111',
+      '#222222',
+    ]);
   });
 
   it('keeps only as many colors as fit, in order', () => {
@@ -119,7 +131,12 @@ describe('addPicks (adding colors from an image)', () => {
 
   it('fills only the remaining room', () => {
     const start = pick(EMPTY_PALETTE, '#999999', '#888888');
-    expect(addPicks(start, colors(6)).picks).toEqual(['#999999', '#888888', colors(2)[0], colors(2)[1]]);
+    expect(addPicks(start, colors(6)).picks).toEqual([
+      '#999999',
+      '#888888',
+      colors(2)[0],
+      colors(2)[1],
+    ]);
   });
 
   it('replaces auto-selected colors, keeping manual ones', () => {
@@ -153,7 +170,9 @@ describe('auto-selected wheel colors', () => {
   });
 
   it('follows the wheel type until the user takes over', () => {
-    expect(paletteColors(applyAutoHarmony(applyAutoHarmony(EMPTY_PALETTE, wheelA), wheelB))).toEqual(wheelB);
+    expect(
+      paletteColors(applyAutoHarmony(applyAutoHarmony(EMPTY_PALETTE, wheelA), wheelB)),
+    ).toEqual(wheelB);
   });
 
   it('leaves manual picks alone', () => {
@@ -186,7 +205,10 @@ describe('auto-selected wheel colors', () => {
   });
 
   it('selects the wheel again once the pairing is cleared and nothing else is chosen', () => {
-    const state = choosePairing(choosePairing(EMPTY_PALETTE, ['#aaaaaa', '#bbbbbb']), ['#aaaaaa', '#bbbbbb']);
+    const state = choosePairing(choosePairing(EMPTY_PALETTE, ['#aaaaaa', '#bbbbbb']), [
+      '#aaaaaa',
+      '#bbbbbb',
+    ]);
     expect(paletteColors(applyAutoHarmony(state, wheelA))).toEqual(wheelA);
   });
 });

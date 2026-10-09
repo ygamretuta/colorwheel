@@ -12,7 +12,17 @@ import Palette from '@/features/palette/Palette';
 import { StepHeader, StepNav } from '@/features/stepper/Stepper';
 import { generateHarmony } from '@/features/harmony/harmony';
 import { STEPS, clampStep } from '@/features/stepper/steps';
-import { EMPTY_PALETTE, addPicks, applyAutoHarmony, choosePairing, clearPairing, dropAuto, paletteColors, removeColor, togglePick } from '@/features/palette/palette-state';
+import {
+  EMPTY_PALETTE,
+  addPicks,
+  applyAutoHarmony,
+  choosePairing,
+  clearPairing,
+  dropAuto,
+  paletteColors,
+  removeColor,
+  togglePick,
+} from '@/features/palette/palette-state';
 import { normalizeHex, normalizeHexes } from '@/shared/color/convert';
 
 const DEFAULT_HEX = '#3366cc';
@@ -21,7 +31,8 @@ const PICK_COLORS_STEP = 1;
 
 export default function App() {
   const [step, setStep] = useState(0);
-  const [furthest, setFurthest] = useState(0); // the furthest step reached; later ones stay locked in the progress bar
+  // the furthest step reached; later ones stay locked in the progress bar
+  const [furthest, setFurthest] = useState(0);
   const [hex, setHex] = useState(DEFAULT_HEX);
   const [harmony, setHarmony] = useState<HarmonyId>(DEFAULT_HARMONY);
   const [session, setSession] = useState(0);
@@ -32,7 +43,8 @@ export default function App() {
     const normalized = normalizeHex(value);
     if (!normalized || normalized === hex) return;
     setHex(normalized);
-    // A pairing and any auto-selected wheel colors are built from the base color, so they no longer apply.
+    // A pairing and any auto-selected wheel colors are built from the base color, so they no longer
+    // apply.
     setPaletteState((state) => clearPairing(dropAuto(state)));
   };
   const changeHarmony = (type: HarmonyId) => {
@@ -49,12 +61,13 @@ export default function App() {
     setPaletteState(EMPTY_PALETTE);
     setSession((current) => current + 1); // remounts the steps so the loaded image is dropped too
   };
-  // A new image starts the work over: whatever was chosen from the previous one (picks, auto-selected
-  // wheel colors, a chosen pairing) is dropped, and the image's most common color becomes the base.
-  // The wheel type is a preference, so it stays.
+  // A new image starts the work over: whatever was chosen from the previous one (picks,
+  // auto-selected wheel colors, a chosen pairing) is dropped, and the image's most common color
+  // becomes the base. The wheel type is a preference, so it stays.
   const startFromImage = (colors: string[]) => {
     setPaletteState(EMPTY_PALETTE);
-    setFurthest((reached) => Math.min(reached, PICK_COLORS_STEP)); // the steps after "Pick your colors" were built on the old image
+    // the steps after "Pick your colors" were built on the old image
+    setFurthest((reached) => Math.min(reached, PICK_COLORS_STEP));
     const first = normalizeHex(colors[0] ?? '');
     if (first) setHex(first);
   };
@@ -65,11 +78,15 @@ export default function App() {
     if (normalized.length === 0) return { added: 0, total: 0 };
     const nextBase = normalized.includes(hex) ? hex : normalized[0];
     if (nextBase !== hex) setHex(nextBase);
-    // A pairing built on the old base no longer applies, so clear it first and let the freed room count.
+    // A pairing built on the old base no longer applies, so clear it first and let the freed room
+    // count.
     const next = addPicks(nextBase === hex ? paletteState : clearPairing(paletteState), normalized);
     setPaletteState(next);
     const inPalette = paletteColors(next);
-    return { added: normalized.filter((color) => inPalette.includes(color)).length, total: normalized.length };
+    return {
+      added: normalized.filter((color) => inPalette.includes(color)).length,
+      total: normalized.length,
+    };
   };
   // The one way to change step (Back, Next and the progress bar all use it).
   const goTo = (target: number) => {
@@ -77,7 +94,8 @@ export default function App() {
     setStep(next);
     setFurthest((reached) => Math.max(reached, next));
     // Arriving at "Pick your colors" with nothing chosen selects the wheel's colors.
-    if (next === PICK_COLORS_STEP) setPaletteState((state) => applyAutoHarmony(state, generateHarmony(hex, harmony)));
+    if (next === PICK_COLORS_STEP)
+      setPaletteState((state) => applyAutoHarmony(state, generateHarmony(hex, harmony)));
   };
   const go = (delta: number) => goTo(step + delta);
 
@@ -85,12 +103,24 @@ export default function App() {
     <main className="app">
       <title>{`${STEPS[step].title} · Color Wheel`}</title>
       <h1 className="app__title">Color Wheel</h1>
-      <StepHeader index={step} furthest={furthest} onGoTo={goTo} onReset={step < STEPS.length - 1 ? restart : undefined} />
+      <StepHeader
+        index={step}
+        furthest={furthest}
+        onGoTo={goTo}
+        onReset={step < STEPS.length - 1 ? restart : undefined}
+      />
 
       <section key={session} className="app__step" aria-live="polite">
-        {/* Activity keeps step 1's state (the loaded image) while hidden, and pauses its effects. */}
+        {/*
+          Activity keeps step 1's state (the loaded image) while hidden, and pauses its effects.
+        */}
         <Activity mode={step === 0 ? 'visible' : 'hidden'}>
-          <ImageSource hex={hex} onPick={setColor} onImageLoaded={startFromImage} onAddAll={addImageColors} />
+          <ImageSource
+            hex={hex}
+            onPick={setColor}
+            onImageLoaded={startFromImage}
+            onAddAll={addImageColors}
+          />
           <ColorPicker hex={hex} onChange={setColor} />
         </Activity>
         {step === 1 && (
@@ -108,7 +138,11 @@ export default function App() {
         )}
         {step === 2 && (
           <>
-            <Palette colors={palette} onRemove={(color) => setPaletteState((state) => removeColor(state, color))} onClear={() => setPaletteState(EMPTY_PALETTE)} />
+            <Palette
+              colors={palette}
+              onRemove={(color) => setPaletteState((state) => removeColor(state, color))}
+              onClear={() => setPaletteState(EMPTY_PALETTE)}
+            />
             <ExampleGallery colors={palette} />
             <SixtyThirtyTen colors={palette} />
           </>

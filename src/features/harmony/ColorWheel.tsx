@@ -12,5 +12,17 @@ export default function ColorWheel({ colors, others = [] }: ColorWheelProps) {
   useEffect(() => {
     if (ref.current) drawWheel(ref.current, colors, others);
   }, [colors, others]);
-  return <canvas ref={ref} className="harmony__wheel" width="240" height="240" aria-label={others.length ? "Color wheel showing the selected harmony and your other chosen colors" : "Color wheel showing the selected harmony"} />;
+  return (
+    <canvas
+      ref={ref}
+      className="harmony__wheel"
+      width="240"
+      height="240"
+      aria-label={
+        others.length
+          ? 'Color wheel showing the selected harmony and your other chosen colors'
+          : 'Color wheel showing the selected harmony'
+      }
+    />
+  );
 }

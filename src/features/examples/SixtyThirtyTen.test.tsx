@@ -22,7 +22,9 @@ describe('assignSixtyThirtyTen', () => {
   it('uses three different colors from the palette', () => {
     const roles = assignSixtyThirtyTen(PALETTE)!;
     expect(new Set([roles.dominant, roles.secondary, roles.accent]).size).toBe(3);
-    [roles.dominant, roles.secondary, roles.accent].forEach((color) => expect(PALETTE).toContain(color));
+    [roles.dominant, roles.secondary, roles.accent].forEach((color) =>
+      expect(PALETTE).toContain(color),
+    );
   });
 
   it('chooses a secondary that contrasts with the dominant color', () => {
@@ -48,14 +50,20 @@ describe('SixtyThirtyTen', () => {
     expect(segments.map((s) => s.dataset.role)).toEqual(['dominant', 'secondary', 'accent']);
     expect(segments.map((s) => s.textContent)).toEqual(['60%', '30%', '10%']);
     expect(segments.map((s) => s.style.flexGrow)).toEqual(['60', '30', '10']);
-    expect([...container.querySelectorAll<HTMLElement>('[data-example]')].map((el) => el.dataset.example)).toEqual(['rule-landing', 'rule-poster']);
+    expect(
+      [...container.querySelectorAll<HTMLElement>('[data-example]')].map(
+        (el) => el.dataset.example,
+      ),
+    ).toEqual(['rule-landing', 'rule-poster']);
   });
 
   it('paints the examples with exactly the three rule colors', () => {
     const { container } = render(<SixtyThirtyTen colors={PALETTE} />);
     const roles = assignSixtyThirtyTen(PALETTE)!;
     container.querySelectorAll<HTMLElement>('svg').forEach((svg) => {
-      const fills = new Set([...svg.querySelectorAll<HTMLElement>('rect')].map((rect) => rect.getAttribute('fill')));
+      const fills = new Set(
+        [...svg.querySelectorAll<HTMLElement>('rect')].map((rect) => rect.getAttribute('fill')),
+      );
       expect(fills).toEqual(new Set([roles.dominant, roles.secondary, roles.accent]));
     });
   });

@@ -1,12 +1,48 @@
-.harmony__top { display: grid; grid-template-columns: 7.5rem 1fr; align-items: center; gap: var(--space-2); }
-.harmony__wheel { display: block; width: 7.5rem; height: 7.5rem; }
-.harmony__label { display: block; margin-bottom: var(--space-1); font-size: 0.875rem; line-height: 1.25rem; }
-.harmony__select { min-height: var(--control-height); }
-.harmony__description { margin-top: var(--space-1); font-size: 0.75rem; line-height: 1rem; color: var(--muted-foreground); }
-.harmony__hint { margin-top: var(--space-1); font-size: 0.75rem; line-height: 1rem; color: var(--muted-foreground); }
+.harmony__top {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  align-items: center;
+  gap: var(--space-2);
+}
+.harmony__wheel {
+  display: block;
+  width: 7.5rem;
+  height: 7.5rem;
+}
+.harmony__label {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+.harmony__select {
+  min-height: var(--control-height);
+}
+.harmony__description {
+  margin-top: var(--space-1);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--muted-foreground);
+}
+.harmony__hint {
+  margin-top: var(--space-1);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--muted-foreground);
+}
 
 @media (min-width: 640px) {
-  .harmony__top { grid-template-columns: 12rem 1fr; gap: var(--space-3); }
-  .harmony__wheel { width: 12rem; height: 12rem; }
-  .harmony__description, .harmony__hint { font-size: 0.875rem; line-height: 1.25rem; }
+  .harmony__top {
+    grid-template-columns: 12rem 1fr;
+    gap: var(--space-3);
+  }
+  .harmony__wheel {
+    width: 12rem;
+    height: 12rem;
+  }
+  .harmony__description,
+  .harmony__hint {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
 }

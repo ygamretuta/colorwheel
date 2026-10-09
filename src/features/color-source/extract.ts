@@ -2,15 +2,19 @@ import { rgbToHex, type Rgb } from '@/shared/color/convert';
 import { deltaE, rgbToLab, type Lab } from '@/shared/color/lab';
 import type { PixelData } from './sample';
 
-const BIN_SHIFT = 4; // 16 levels per channel: pixels that look alike share a bin, which also averages out noise
-const MIN_SHARE = 0.01; // under 1% of the image is a speck or a stray edge pixel, never a palette color
+// 16 levels per channel: pixels that look alike share a bin, which also averages out noise
+const BIN_SHIFT = 4;
+// under 1% of the image is a speck or a stray edge pixel, never a palette color
+const MIN_SHARE = 0.01;
 const ACCENT_SHARE = 0.02; // between 1% and 2% a color must also stand out to count...
-const ISOLATED_DELTA_E = 30; // ...i.e. look clearly different from every color already kept (a small accent, not noise)
+// ...i.e. look clearly different from every color already kept (a small accent, not noise)
+const ISOLATED_DELTA_E = 30;
 const MIN_DELTA_E = 12; // two swatches closer than this look like the same color
 const REFINE_DELTA_E = 15; // pixels this close to a cluster's main color are averaged into it
 const BLEND_MAX_SHARE = 0.08; // only small colors can be dismissed as blends of two bigger ones
 const BLEND_DELTA_E = 7; // how close to the line between two colors counts as "in between"
-const EXTRA_CLUSTERS = 3; // cluster a few more than asked for, then prune, so noise gets its own cluster to be dropped
+// cluster a few more than asked for, then prune, so noise gets its own cluster to be dropped
+const EXTRA_CLUSTERS = 3;
 const MAX_ITERATIONS = 12;
 
 /** Group opaque pixels into fine bins, keeping each bin's pixel count and exact mean color. */
@@ -33,7 +37,10 @@ function buildHistogram(data: ArrayLike<number>): { bins: Bin[]; total: number }
   let total = 0;
   for (let i = 0; i < data.length; i += 4) {
     if (data[i + 3] < 128) continue; // ignore transparent pixels
-    const key = ((data[i] >> BIN_SHIFT) << 8) | ((data[i + 1] >> BIN_SHIFT) << 4) | (data[i + 2] >> BIN_SHIFT);
+    const key =
+      ((data[i] >> BIN_SHIFT) << 8) |
+      ((data[i + 1] >> BIN_SHIFT) << 4) |
+      (data[i + 2] >> BIN_SHIFT);
     const bin = bins.get(key) ?? { n: 0, r: 0, g: 0, b: 0 };
     bin.n += 1;
     bin.r += data[i];
@@ -122,21 +129,31 @@ function representative(members: Bin[]): { rgb: Rgb } {
   const top = members.reduce((best, bin) => (bin.n > best.n ? bin : best));
   const close = members.filter((bin) => deltaE(bin.lab, top.lab) <= REFINE_DELTA_E);
   const weight = close.reduce((sum, bin) => sum + bin.n, 0);
-  const mean = (channel: keyof Rgb) => close.reduce((sum, bin) => sum + bin.rgb[channel] * bin.n, 0) / weight;
+  const mean = (channel: keyof Rgb) =>
+    close.reduce((sum, bin) => sum + bin.rgb[channel] * bin.n, 0) / weight;
   return { rgb: { r: mean('r'), g: mean('g'), b: mean('b') } };
 }
 
-/** Distance from `point` to the segment p-q in Lab space, and how far along it the closest point is (0..1). */
+/**
+ * Distance from `point` to the segment p-q in Lab space, and how far along it the closest point is
+ * (0..1).
+ */
 function segmentDistance(point: Lab, p: Lab, q: Lab): { distance: number; t: number } {
   const d = { l: q.l - p.l, a: q.a - p.a, b: q.b - p.b };
   const length2 = d.l * d.l + d.a * d.a + d.b * d.b;
   if (length2 === 0) return { distance: deltaE(point, p), t: 0 };
-  const t = Math.min(1, Math.max(0, ((point.l - p.l) * d.l + (point.a - p.a) * d.a + (point.b - p.b) * d.b) / length2));
+  const t = Math.min(
+    1,
+    Math.max(0, ((point.l - p.l) * d.l + (point.a - p.a) * d.a + (point.b - p.b) * d.b) / length2),
+  );
   const closest = { l: p.l + t * d.l, a: p.a + t * d.a, b: p.b + t * d.b };
   return { distance: deltaE(point, closest), t };
 }
 
-/** Specks are always noise; small patches are kept only if they are a distinct accent rather than a variant of a bigger color. */
+/**
+ * Specks are always noise; small patches are kept only if they are a distinct accent rather than a
+ * variant of a bigger color.
+ */
 function isTooSmall(candidate: Candidate, kept: Candidate[]): boolean {
   if (candidate.share < MIN_SHARE) return true;
   if (candidate.share >= ACCENT_SHARE) return false;
@@ -163,17 +180,24 @@ function isBlendOf(candidate: Candidate, kept: Candidate[]): boolean {
  *
  * 1. Bin pixels into a coarse histogram.  2. Cluster the bins with k-means in Lab space.
  * 3. Name each cluster by its most common real color.  4. Drop specks, small clusters that are only
- * a variant of a bigger color, clusters that look like one already kept, and small clusters that are
- * just a blend of two bigger ones. A small but clearly different color (an accent) is kept.
+ * a variant of a bigger color, clusters that look like one already kept, and small clusters that
+ * are just a blend of two bigger ones. A small but clearly different color (an accent) is kept.
  */
-export function extractPaletteWithShares({ data }: PixelData, count = 6): { hex: string; share: number }[] {
+export function extractPaletteWithShares(
+  { data }: PixelData,
+  count = 6,
+): { hex: string; share: number }[] {
   const { bins, total } = buildHistogram(data);
   if (total === 0) return [];
 
   const clusters = cluster(bins, count + EXTRA_CLUSTERS)
     .map((members) => {
       const { rgb } = representative(members);
-      return { rgb, lab: rgbToLab(rgb), share: members.reduce((sum, bin) => sum + bin.n, 0) / total };
+      return {
+        rgb,
+        lab: rgbToLab(rgb),
+        share: members.reduce((sum, bin) => sum + bin.n, 0) / total,
+      };
     })
     .sort((a, b) => b.share - a.share);
 
@@ -182,14 +206,20 @@ export function extractPaletteWithShares({ data }: PixelData, count = 6): { hex:
   for (const candidate of clusters) {
     const isNoise = kept.length > 0 && isTooSmall(candidate, kept);
     const isDuplicate = kept.some((swatch) => deltaE(swatch.lab, candidate.lab) < MIN_DELTA_E);
-    if (kept.length < count && !isNoise && !isDuplicate && !isBlendOf(candidate, kept)) kept.push(candidate);
+    if (kept.length < count && !isNoise && !isDuplicate && !isBlendOf(candidate, kept))
+      kept.push(candidate);
     else dropped.push(candidate);
   }
 
-  // Dropped colors still cover part of the image: credit that area to the swatch they look most like.
+  // Dropped colors still cover part of the image: credit that area to the swatch they look most
+  // like.
   const totals = kept.map(({ share }) => share);
   dropped.forEach((candidate) => {
-    const nearest = kept.reduce((best, swatch, index) => (deltaE(swatch.lab, candidate.lab) < deltaE(kept[best].lab, candidate.lab) ? index : best), 0);
+    const nearest = kept.reduce(
+      (best, swatch, index) =>
+        deltaE(swatch.lab, candidate.lab) < deltaE(kept[best].lab, candidate.lab) ? index : best,
+      0,
+    );
     totals[nearest] += candidate.share;
   });
 
@@ -199,7 +229,8 @@ export function extractPaletteWithShares({ data }: PixelData, count = 6): { hex:
 }
 
 /** Up to `count` dominant hex colors, most common first. */
-export const extractPalette = (imageData: PixelData, count = 6): string[] => extractPaletteWithShares(imageData, count).map(({ hex }) => hex);
+export const extractPalette = (imageData: PixelData, count = 6): string[] =>
+  extractPaletteWithShares(imageData, count).map(({ hex }) => hex);
 
 /** Shrink a canvas to at most `side` pixels on its longest edge and read its pixels. */
 export function readSmallImageData(canvas: HTMLCanvasElement, side = 128): ImageData | null {

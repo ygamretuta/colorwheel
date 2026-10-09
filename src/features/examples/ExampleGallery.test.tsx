@@ -12,7 +12,9 @@ describe('ExampleGallery', () => {
 
   it('shows a movie poster, fashion look, event poster and business cards', () => {
     const { container } = render(<ExampleGallery colors={PALETTE} />);
-    const ids = [...container.querySelectorAll<HTMLElement>('[data-example]')].map((el) => el.dataset.example);
+    const ids = [...container.querySelectorAll<HTMLElement>('[data-example]')].map(
+      (el) => el.dataset.example,
+    );
     expect(ids).toEqual(['movie', 'fashion', 'event', 'brand']);
     expect(container.querySelectorAll<HTMLElement>('svg[role="img"]')).toHaveLength(4);
   });

@@ -7,12 +7,20 @@ import type { HarmonyId } from '@/features/harmony/harmony';
 
 const HEX = '#3366cc';
 const HARMONY = 'square';
-const setOf = (index: number, harmony: HarmonyId = HARMONY) => [HEX, ...suggestPairings(HEX, harmony)[index].colors];
+const setOf = (index: number, harmony: HarmonyId = HARMONY) => [
+  HEX,
+  ...suggestPairings(HEX, harmony)[index].colors,
+];
 
 describe('Suggestions', () => {
   it('re-renders pairings from the selected wheel type', () => {
-    const { container, rerender } = render(<Suggestions hex={HEX} harmony="complementary" chosen={[]} onChoose={() => {}} />);
-    const read = () => [...container.querySelectorAll<HTMLElement>('[data-suggestion]')].map((el) => el.dataset.suggestion);
+    const { container, rerender } = render(
+      <Suggestions hex={HEX} harmony="complementary" chosen={[]} onChoose={() => {}} />,
+    );
+    const read = () =>
+      [...container.querySelectorAll<HTMLElement>('[data-suggestion]')].map(
+        (el) => el.dataset.suggestion,
+      );
     expect(read()).toEqual(['best-match', 'balanced-pair']);
     const before = container.innerHTML;
     rerender(<Suggestions hex={HEX} harmony="square" chosen={[]} onChoose={() => {}} />);
@@ -21,7 +29,9 @@ describe('Suggestions', () => {
   });
 
   it('renders three suggestion cards for a wheel type with three or more partners', () => {
-    const { container } = render(<Suggestions hex={HEX} harmony={HARMONY} chosen={[]} onChoose={() => {}} />);
+    const { container } = render(
+      <Suggestions hex={HEX} harmony={HARMONY} chosen={[]} onChoose={() => {}} />,
+    );
     expect(container.querySelectorAll<HTMLElement>('[data-suggestion]')).toHaveLength(3);
   });
 
@@ -35,14 +45,20 @@ describe('Suggestions', () => {
 
   it('chooses a pairing from the whole tile, once', async () => {
     const onChoose = vi.fn();
-    const { container } = render(<Suggestions hex={HEX} harmony={HARMONY} chosen={[]} onChoose={onChoose} />);
-    await userEvent.click(container.querySelector<HTMLElement>('[data-suggestion="balanced-pair"] p')!);
+    const { container } = render(
+      <Suggestions hex={HEX} harmony={HARMONY} chosen={[]} onChoose={onChoose} />,
+    );
+    await userEvent.click(
+      container.querySelector<HTMLElement>('[data-suggestion="balanced-pair"] p')!,
+    );
     expect(onChoose).toHaveBeenCalledTimes(1);
     expect(onChoose).toHaveBeenCalledWith(setOf(1));
   });
 
   it('marks only the chosen pairing', () => {
-    const { container } = render(<Suggestions hex={HEX} harmony={HARMONY} chosen={setOf(1)} onChoose={() => {}} />);
+    const { container } = render(
+      <Suggestions hex={HEX} harmony={HARMONY} chosen={setOf(1)} onChoose={() => {}} />,
+    );
     const picked = [...container.querySelectorAll<HTMLElement>('.suggestions__item--picked')];
     expect(picked).toHaveLength(1);
     expect(picked[0].dataset.suggestion).toBe('balanced-pair');
@@ -50,8 +66,12 @@ describe('Suggestions', () => {
   });
 
   it('renders swatches as non-interactive chips', () => {
-    const { container } = render(<Suggestions hex={HEX} harmony={HARMONY} chosen={[]} onChoose={() => {}} />);
-    expect(container.querySelectorAll<HTMLElement>('.swatches__item[aria-pressed]')).toHaveLength(0);
+    const { container } = render(
+      <Suggestions hex={HEX} harmony={HARMONY} chosen={[]} onChoose={() => {}} />,
+    );
+    expect(container.querySelectorAll<HTMLElement>('.swatches__item[aria-pressed]')).toHaveLength(
+      0,
+    );
     expect(container.querySelectorAll<HTMLElement>('.swatches button')).toHaveLength(0);
   });
 });
@@ -59,7 +79,9 @@ describe('Suggestions', () => {
 describe('Suggestions are never disabled', () => {
   it('every pairing can be chosen, whatever the palette holds', async () => {
     const onChoose = vi.fn();
-    const { container } = render(<Suggestions hex={HEX} harmony="square" chosen={[]} onChoose={onChoose} />);
+    const { container } = render(
+      <Suggestions hex={HEX} harmony="square" chosen={[]} onChoose={onChoose} />,
+    );
     const buttons = screen.getAllByText('Choose');
     expect(buttons).toHaveLength(3);
     buttons.forEach((button) => expect(button.closest('button')!.disabled).toBe(false));
@@ -73,8 +95,12 @@ describe('Suggestions are never disabled', () => {
 
   it('the whole tile stays clickable', async () => {
     const onChoose = vi.fn();
-    const { container } = render(<Suggestions hex={HEX} harmony="square" chosen={[]} onChoose={onChoose} />);
-    await userEvent.click(container.querySelector<HTMLElement>('[data-suggestion="balanced-pair"] p')!);
+    const { container } = render(
+      <Suggestions hex={HEX} harmony="square" chosen={[]} onChoose={onChoose} />,
+    );
+    await userEvent.click(
+      container.querySelector<HTMLElement>('[data-suggestion="balanced-pair"] p')!,
+    );
     expect(onChoose).toHaveBeenCalledWith(setOf(1));
   });
 

@@ -34,10 +34,18 @@ export default function PaletteStack({ colors, onRemove }: PaletteStackProps) {
           </button>
         ))}
         {Array.from({ length: emptySlots }, (_, index) => (
-          <div key={`empty-${index}`} className="stack__segment stack__segment--empty" aria-hidden="true" />
+          <div
+            key={`empty-${index}`}
+            className="stack__segment stack__segment--empty"
+            aria-hidden="true"
+          />
         ))}
       </div>
-      <p className="stack__hint">{colors.length > 0 ? 'Tap a color to remove it.' : 'Pick colors above, or choose a pairing below.'}</p>
+      <p className="stack__hint">
+        {colors.length > 0
+          ? 'Tap a color to remove it.'
+          : 'Pick colors above, or choose a pairing below.'}
+      </p>
     </section>
   );
 }

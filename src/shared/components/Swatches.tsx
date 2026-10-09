@@ -13,10 +13,18 @@ interface SwatchesProps {
 /**
  * Row of clickable swatches. When `selected` is given the swatches act as
  * toggles (aria-pressed); `onSelect(hex)` fires on every click. Without
- * `onSelect` they render as plain, non-interactive chips. `disabledColors` are shown dimmed and can't be tapped. `size` is 'default',
- * 'compact' (short tiles), 'tile' (one even row, label hidden) or 'chip' (small, label hidden).
+ * `onSelect` they render as plain, non-interactive chips. `disabledColors` are shown dimmed and
+ * can't be tapped. `size` is 'default', 'compact' (short tiles), 'tile' (one even row, label
+ * hidden) or 'chip' (small, label hidden).
  */
-export default function Swatches({ colors, activeHex, selected, onSelect, disabledColors = [], size = 'default' }: SwatchesProps) {
+export default function Swatches({
+  colors,
+  activeHex,
+  selected,
+  onSelect,
+  disabledColors = [],
+  size = 'default',
+}: SwatchesProps) {
   const toggleable = Array.isArray(selected);
   return (
     <div className={`swatches${size === 'default' ? '' : ` swatches--${size}`}`}>
@@ -35,7 +43,15 @@ export default function Swatches({ colors, activeHex, selected, onSelect, disabl
             type={onSelect ? 'button' : undefined}
             className={['swatches__item', ...modifiers].join(' ')}
             style={{ backgroundColor: hex, color: readableTextColor(hex) }}
-            title={isLocked ? `Palette is full: remove a color to add ${hex}` : onSelect ? (toggleable ? `${isSelected ? 'Remove' : 'Add'} ${hex}` : `Use ${hex}`) : hex}
+            title={
+              isLocked
+                ? `Palette is full: remove a color to add ${hex}`
+                : onSelect
+                  ? toggleable
+                    ? `${isSelected ? 'Remove' : 'Add'} ${hex}`
+                    : `Use ${hex}`
+                  : hex
+            }
             disabled={isLocked || undefined}
             aria-pressed={onSelect && toggleable ? isSelected : undefined}
             aria-current={hex === activeHex ? 'true' : undefined}

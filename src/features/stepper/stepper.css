@@ -1,53 +1,145 @@
-.stepper__header { margin-bottom: var(--space-2); }
-.stepper__row { display: flex; align-items: center; gap: var(--space-1); }
-.stepper__title { flex: 1; }
-.stepper__count { font-size: 0.75rem; line-height: 1rem; color: var(--muted-foreground); white-space: nowrap; }
-.stepper__bar { display: flex; gap: var(--space-1); margin: var(--space-1) 0 0; padding: 0; list-style: none; }
+.stepper__header {
+  margin-bottom: var(--space-2);
+}
+.stepper__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.stepper__title {
+  flex: 1;
+}
+.stepper__count {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+.stepper__bar {
+  display: flex;
+  gap: var(--space-1);
+  margin: var(--space-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
 
 /* Each segment is a 32px-tall tap target with the 4px bar drawn in its middle. */
-.stepper__segment { flex: 1; --bar: var(--border); }
-.stepper__segment--visited { --bar: color-mix(in oklab, var(--muted-foreground) 55%, transparent); } /* reached before: you can jump back to it */
-.stepper__segment--done { --bar: var(--primary); }
+.stepper__segment {
+  flex: 1;
+  --bar: var(--border);
+}
+.stepper__segment--visited {
+  --bar: color-mix(in oklab, var(--muted-foreground) 55%, transparent);
+} /* reached before: you can jump back to it */
+.stepper__segment--done {
+  --bar: var(--primary);
+}
 .stepper__jump {
-  position: relative; display: block; width: 100%; height: var(--space-4); margin: 0; padding: 0;
-  border: 0; border-radius: var(--radius); background: transparent; cursor: pointer;
+  position: relative;
+  display: block;
+  width: 100%;
+  height: var(--space-4);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  cursor: pointer;
 }
 .stepper__jump::before {
-  content: ''; position: absolute; inset-inline: 0; top: 50%; height: var(--space-half); transform: translateY(-50%);
-  border-radius: 9999px; background: var(--bar); transition: height 120ms ease;
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: var(--space-half);
+  transform: translateY(-50%);
+  border-radius: 9999px;
+  background: var(--bar);
+  transition: height 120ms ease;
 }
-.stepper__jump:disabled { cursor: not-allowed; }
-.stepper__jump:focus-visible { outline: 3px solid var(--ring); outline-offset: -2px; }
-.stepper__jump[aria-current='step'] { cursor: default; }
-@media (hover: hover) { .stepper__jump:not(:disabled):not([aria-current='step']):hover::before { height: var(--space-1); } }
-
-/* Without buttons (a display-only header) the segment draws its own bar. */
-.stepper__segment:not(:has(.stepper__jump)) { height: var(--space-half); border-radius: 9999px; background: var(--bar); }
-.stepper__title { font-size: 1.25rem; line-height: 1.5rem; font-weight: 700; }
-.stepper__hint { display: none; margin-top: var(--space-2); color: var(--muted-foreground); }
-
-/* Bar is 64px tall on phones: 48px buttons + 8px padding top and bottom. */
-.stepper__nav {
-  position: fixed; inset: auto 0 0 0; z-index: 10;
-  display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-1);
-  padding: var(--space-1) var(--space-2) calc(var(--space-1) + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--border); background: var(--background);
+.stepper__jump:disabled {
+  cursor: not-allowed;
 }
-.stepper__button { min-height: var(--control-height); }
-.stepper__button:disabled { visibility: hidden; }
-
-@media (min-width: 640px) {
-  .stepper__title { font-size: 1.5rem; line-height: 2rem; }
-  .stepper__hint { display: block; }
-  .stepper__nav {
-    position: static; max-width: 64rem; margin: var(--space-3) auto 0; padding: 0;
-    border: 0; display: flex; justify-content: space-between;
+.stepper__jump:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: -2px;
+}
+.stepper__jump[aria-current='step'] {
+  cursor: default;
+}
+@media (hover: hover) {
+  .stepper__jump:not(:disabled):not([aria-current='step']):hover::before {
+    height: var(--space-1);
   }
 }
 
-/* Reset: a 48px touch target that doesn't make the header any taller (negative margin cancels the extra height). */
-.stepper__reset {
-  min-height: var(--control-height); margin-block: calc((var(--control-height) - var(--space-3)) / -2);
-  padding-inline: var(--space-1); font-size: 0.875rem; color: var(--muted-foreground);
+/* Without buttons (a display-only header) the segment draws its own bar. */
+.stepper__segment:not(:has(.stepper__jump)) {
+  height: var(--space-half);
+  border-radius: 9999px;
+  background: var(--bar);
 }
-.stepper__reset--armed { color: var(--destructive); font-weight: 600; }
+.stepper__title {
+  font-size: 1.25rem;
+  line-height: 1.5rem;
+  font-weight: 700;
+}
+.stepper__hint {
+  display: none;
+  margin-top: var(--space-2);
+  color: var(--muted-foreground);
+}
+
+/* Bar is 64px tall on phones: 48px buttons + 8px padding top and bottom. */
+.stepper__nav {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2) calc(var(--space-1) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+  background: var(--background);
+}
+.stepper__button {
+  min-height: var(--control-height);
+}
+.stepper__button:disabled {
+  visibility: hidden;
+}
+
+@media (min-width: 640px) {
+  .stepper__title {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  .stepper__hint {
+    display: block;
+  }
+  .stepper__nav {
+    position: static;
+    max-width: 64rem;
+    margin: var(--space-3) auto 0;
+    padding: 0;
+    border: 0;
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+/*
+ * Reset: a 48px touch target that doesn't make the header any taller (negative margin cancels the
+ * extra height).
+ */
+.stepper__reset {
+  min-height: var(--control-height);
+  margin-block: calc((var(--control-height) - var(--space-3)) / -2);
+  padding-inline: var(--space-1);
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+.stepper__reset--armed {
+  color: var(--destructive);
+  font-weight: 600;
+}

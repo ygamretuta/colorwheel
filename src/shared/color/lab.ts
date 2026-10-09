@@ -5,9 +5,13 @@ const linear = (channel: number) => {
   return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
 };
 
-const f = (t: number) => (t > 216 / 24389 ? Math.cbrt(t) : (24389 / 27 * t + 16) / 116);
+const f = (t: number) => (t > 216 / 24389 ? Math.cbrt(t) : ((24389 / 27) * t + 16) / 116);
 
-export interface Lab { l: number; a: number; b: number }
+export interface Lab {
+  l: number;
+  a: number;
+  b: number;
+}
 
 export function rgbToLab({ r, g, b }: { r: number; g: number; b: number }): Lab {
   const [lr, lg, lb] = [linear(r), linear(g), linear(b)];

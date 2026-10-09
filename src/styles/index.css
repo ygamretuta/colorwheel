@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -26,24 +26,26 @@
   /* 8pt grid: every spacing and size is a multiple of 8px (0.5rem). --space-half (4px)
      is the only half-step, for hairline gaps inside a component. */
   --space-half: 0.25rem; /* 4 */
-  --space-1: 0.5rem;     /* 8 */
-  --space-2: 1rem;       /* 16 */
-  --space-3: 1.5rem;     /* 24 */
-  --space-4: 2rem;       /* 32 */
-  --space-5: 2.5rem;     /* 40 */
-  --space-6: 3rem;       /* 48 */
-  --space-7: 3.5rem;     /* 56 */
-  --space-8: 4rem;       /* 64 */
-  --space-9: 4.5rem;     /* 72 */
-  --space-10: 5rem;      /* 80 */
-  --space-11: 5.5rem;    /* 88 */
-  --space-12: 6rem;      /* 96 */
+  --space-1: 0.5rem; /* 8 */
+  --space-2: 1rem; /* 16 */
+  --space-3: 1.5rem; /* 24 */
+  --space-4: 2rem; /* 32 */
+  --space-5: 2.5rem; /* 40 */
+  --space-6: 3rem; /* 48 */
+  --space-7: 3.5rem; /* 56 */
+  --space-8: 4rem; /* 64 */
+  --space-9: 4.5rem; /* 72 */
+  --space-10: 5rem; /* 80 */
+  --space-11: 5.5rem; /* 88 */
+  --space-12: 6rem; /* 96 */
   /* Touch-friendly on phones, denser with a mouse. */
   --control-height: var(--space-6);
 }
 
 @media (min-width: 640px) {
-  :root { --control-height: var(--space-5); }
+  :root {
+    --control-height: var(--space-5);
+  }
 }
 
 @theme inline {
@@ -72,7 +74,10 @@
 }
 
 @layer base {
-  * { @apply border-border outline-ring/50; }
-  body { @apply bg-background text-foreground; }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
-

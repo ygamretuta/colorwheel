@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { chroma, hexToHsl, hexToRgb, hslToHex, isNeutral, normalizeHex, rgbToHex, rotateHue } from './convert';
+import {
+  chroma,
+  hexToHsl,
+  hexToRgb,
+  hslToHex,
+  isNeutral,
+  normalizeHex,
+  rgbToHex,
+  rotateHue,
+} from './convert';
 
 describe('convert', () => {
   it('normalizes hex input', () => {
@@ -43,10 +52,14 @@ describe('chroma and isNeutral', () => {
   });
 
   it('calls greys, whites, blacks and faint tints neutral', () => {
-    ['#808080', '#ffffff', '#000000', '#f1faee', '#0a0a1a', '#fafafa'].forEach((hex) => expect(isNeutral(hex)).toBe(true));
+    ['#808080', '#ffffff', '#000000', '#f1faee', '#0a0a1a', '#fafafa'].forEach((hex) =>
+      expect(isNeutral(hex)).toBe(true),
+    );
   });
 
   it('keeps real colors, including dark and pale ones, non-neutral', () => {
-    ['#3366cc', '#e63946', '#ffeb3b', '#a8dadc', '#1d3557', '#fff3b0'].forEach((hex) => expect(isNeutral(hex)).toBe(false));
+    ['#3366cc', '#e63946', '#ffeb3b', '#a8dadc', '#1d3557', '#fff3b0'].forEach((hex) =>
+      expect(isNeutral(hex)).toBe(false),
+    );
   });
 });

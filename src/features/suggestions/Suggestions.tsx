@@ -4,7 +4,8 @@ import Swatches from '@/shared/components/Swatches';
 import { Button } from '@/shared/ui/button';
 import { suggestPairings } from './suggest';
 
-const sameColors = (a: string[], b: string[]): boolean => a.length === b.length && a.every((color, i) => color === b[i]);
+const sameColors = (a: string[], b: string[]): boolean =>
+  a.length === b.length && a.every((color, i) => color === b[i]);
 
 interface SuggestionsProps {
   hex: string;
@@ -15,12 +16,19 @@ interface SuggestionsProps {
 }
 
 /**
- * Pairing ideas for the base color within the chosen wheel type (`harmony`), as compact rows. `context` is the
- * user's other chosen colors, so the ideas suit the whole combination. Exactly one can be chosen: click the row
- * (or its button) to choose it, which makes it the whole palette, and click again to clear it.
- * `onChoose(colors)` toggles it. A pairing is never disabled: choosing one replaces whatever was in the palette.
+ * Pairing ideas for the base color within the chosen wheel type (`harmony`), as compact rows.
+ * `context` is the user's other chosen colors, so the ideas suit the whole combination. Exactly one
+ * can be chosen: click the row (or its button) to choose it, which makes it the whole palette, and
+ * click again to clear it. `onChoose(colors)` toggles it. A pairing is never disabled: choosing one
+ * replaces whatever was in the palette.
  */
-export default function Suggestions({ hex, harmony, context = [], chosen, onChoose }: SuggestionsProps) {
+export default function Suggestions({
+  hex,
+  harmony,
+  context = [],
+  chosen,
+  onChoose,
+}: SuggestionsProps) {
   const pairings = suggestPairings(hex, harmony, context);
   return (
     <section className="suggestions" aria-label="Suggested pairings">

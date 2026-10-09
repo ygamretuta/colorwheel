@@ -40,7 +40,11 @@ export function averageHex({ data }: PixelData): string | null {
 }
 
 /** Sample a (2*radius+1)² square around a point so noise in photos doesn't skew the pick. */
-export function sampleCanvas(canvas: HTMLCanvasElement, { x, y }: Point, radius = 2): string | null {
+export function sampleCanvas(
+  canvas: HTMLCanvasElement,
+  { x, y }: Point,
+  radius = 2,
+): string | null {
   const left = Math.max(0, x - radius);
   const top = Math.max(0, y - radius);
   const width = Math.min(canvas.width, x + radius + 1) - left;

@@ -24,7 +24,9 @@ describe('StepNav', () => {
   it('offers Start over instead of Next on the last step', async () => {
     const onRestart = vi.fn();
     const onNext = vi.fn();
-    render(<StepNav index={STEPS.length - 1} onBack={() => {}} onNext={onNext} onRestart={onRestart} />);
+    render(
+      <StepNav index={STEPS.length - 1} onBack={() => {}} onNext={onNext} onRestart={onRestart} />,
+    );
     expect(screen.queryByText(/^Next:/)).toBeNull();
     await userEvent.click(screen.getByText('Start over'));
     expect(onRestart).toHaveBeenCalledTimes(1);
@@ -33,7 +35,9 @@ describe('StepNav', () => {
 
   it('never offers Skip to palette (that shortcut was removed)', () => {
     [0, 1, 2].forEach((index) => {
-      const { unmount } = render(<StepNav index={index} onBack={() => {}} onNext={() => {}} onRestart={() => {}} />);
+      const { unmount } = render(
+        <StepNav index={index} onBack={() => {}} onNext={() => {}} onRestart={() => {}} />,
+      );
       expect(screen.queryByText('Skip to palette')).toBeNull();
       unmount();
     });
@@ -103,7 +107,9 @@ describe('StepHeader progress bar', () => {
   it('has one button per step, named after it', () => {
     render(<StepHeader index={0} furthest={2} onGoTo={() => {}} />);
     expect(jumps()).toHaveLength(STEPS.length);
-    STEPS.forEach((step, i) => expect(screen.getByRole('button', { name: `Step ${i + 1}: ${step.title}` })).toBeTruthy());
+    STEPS.forEach((step, i) =>
+      expect(screen.getByRole('button', { name: `Step ${i + 1}: ${step.title}` })).toBeTruthy(),
+    );
   });
 
   it('marks the current step with aria-current', () => {

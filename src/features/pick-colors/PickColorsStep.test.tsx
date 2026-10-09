@@ -9,9 +9,9 @@ beforeEach(() => {
   scrolled.length = 0;
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb: FrameRequestCallback) => {
-      cb(0);
-      return 0;
-    });
+    cb(0);
+    return 0;
+  });
   Element.prototype.scrollIntoView = function scrollIntoView() {
     scrolled.push(this.className);
   };
@@ -52,7 +52,10 @@ describe('PickColorsStep scrolling', () => {
 
 describe('PickColorsStep palette stack', () => {
   const fromImage = ['#a8dadc', '#1d3557', '#f1faee'];
-  const stack = () => [...document.querySelectorAll<HTMLElement>('.stack__segment[data-hex]')].map((el) => el.dataset.hex);
+  const stack = () =>
+    [...document.querySelectorAll<HTMLElement>('.stack__segment[data-hex]')].map(
+      (el) => el.dataset.hex,
+    );
 
   it('previews every color in the palette, in order, including colors the wheel does not show', () => {
     renderStep({ palette: fromImage });
@@ -98,8 +101,12 @@ describe('PickColorsStep palette limit', () => {
     renderStep({ harmony: 'complementary', palette: ['#3366cc', '#a8dadc', '#1d3557', '#f1faee'] });
     expect(screen.getByText(/4 of 4 colors in your palette/)).toBeTruthy();
     expect(screen.getByText(/Full: tap a ✓ color to swap it out/)).toBeTruthy();
-    expect(screen.getByTitle<HTMLButtonElement>(/Palette is full: remove a color to add #cc9933/).disabled).toBe(true); // not in the palette
-    expect(screen.getByTitle<HTMLButtonElement>('Remove #3366cc').disabled).toBe(false); // in the palette, so it can be removed
+    expect(
+      screen.getByTitle<HTMLButtonElement>(/Palette is full: remove a color to add #cc9933/)
+        .disabled,
+    ).toBe(true); // not in the palette
+    // in the palette, so it can be removed
+    expect(screen.getByTitle<HTMLButtonElement>('Remove #3366cc').disabled).toBe(false);
   });
 
   it('leaves everything tappable while there is room', () => {
@@ -115,6 +122,8 @@ describe('PickColorsStep palette limit', () => {
   it('never disables a pairing, even when the palette is full', () => {
     renderStep({ harmony: 'square', palette: four });
     expect(screen.queryByText('No room')).toBeNull();
-    screen.getAllByText('Choose').forEach((button) => expect(button.closest('button')!.disabled).toBe(false));
+    screen
+      .getAllByText('Choose')
+      .forEach((button) => expect(button.closest('button')!.disabled).toBe(false));
   });
 });

@@ -14,7 +14,11 @@ const image = (...runs: [number, number, number, number, number?][]) => {
 
 const close = (hex: string, [r, g, b]: number[], tolerance = 6) => {
   const c = hexToRgb(hex);
-  return Math.abs(c.r - r) <= tolerance && Math.abs(c.g - g) <= tolerance && Math.abs(c.b - b) <= tolerance;
+  return (
+    Math.abs(c.r - r) <= tolerance &&
+    Math.abs(c.g - g) <= tolerance &&
+    Math.abs(c.b - b) <= tolerance
+  );
 };
 
 describe('extractPalette', () => {
@@ -31,12 +35,20 @@ describe('extractPalette', () => {
   });
 
   it('never returns more than the requested count', () => {
-    const runs = Array.from({ length: 12 }, (_, i): [number, number, number, number] => [i * 20, 255 - i * 20, (i * 70) % 255, 10]);
+    const runs = Array.from({ length: 12 }, (_, i): [number, number, number, number] => [
+      i * 20,
+      255 - i * 20,
+      (i * 70) % 255,
+      10,
+    ]);
     expect(extractPalette(image(...runs), 4).length).toBeLessThanOrEqual(4);
   });
 
   it('drops near-duplicate colors', () => {
-    const palette = extractPalette(image([200, 50, 50, 40], [202, 52, 50, 40], [30, 30, 200, 20]), 6);
+    const palette = extractPalette(
+      image([200, 50, 50, 40], [202, 52, 50, 40], [30, 30, 200, 20]),
+      6,
+    );
     expect(palette).toHaveLength(2);
   });
 
@@ -49,11 +61,19 @@ describe('extractPalette', () => {
 
 // --- accuracy on realistic images -------------------------------------------------
 
-
 const lab = (hex: string) => rgbToLab(hexToRgb(hex));
-const BANDS = [[230, 57, 70], [241, 250, 238], [168, 218, 220], [69, 123, 157], [29, 53, 87]];
+const BANDS = [
+  [230, 57, 70],
+  [241, 250, 238],
+  [168, 218, 220],
+  [69, 123, 157],
+  [29, 53, 87],
+];
 
-/** A strip of flat bands; `edge` blends the last column of each band 50/50 into the next, as a downscale does. */
+/**
+ * A strip of flat bands; `edge` blends the last column of each band 50/50 into the next, as a
+ * downscale does.
+ */
 const strip = ({ width = 100, edge = false, jitter = 0, seed = 1 } = {}) => {
   let state = seed;
   const random = () => {
@@ -66,14 +86,17 @@ const strip = ({ width = 100, edge = false, jitter = 0, seed = 1 } = {}) => {
     const band = Math.min(BANDS.length - 1, Math.floor(x / bandWidth));
     const isEdge = edge && band < BANDS.length - 1 && x === Math.round((band + 1) * bandWidth) - 1;
     for (let y = 0; y < 40; y += 1) {
-      const color = BANDS[band].map((v, k) => (isEdge ? (v + BANDS[band + 1][k]) / 2 : v) + (random() - 0.5) * 2 * jitter);
+      const color = BANDS[band].map(
+        (v, k) => (isEdge ? (v + BANDS[band + 1][k]) / 2 : v) + (random() - 0.5) * 2 * jitter,
+      );
       data.push(...color.map((v) => Math.min(255, Math.max(0, Math.round(v)))), 255);
     }
   }
   return { data: new Uint8ClampedArray(data) };
 };
 
-const matches = (palette: string[], rgb: number[]) => palette.some((hex) => deltaE(lab(hex), rgbToLab({ r: rgb[0], g: rgb[1], b: rgb[2] })) < 6);
+const matches = (palette: string[], rgb: number[]) =>
+  palette.some((hex) => deltaE(lab(hex), rgbToLab({ r: rgb[0], g: rgb[1], b: rgb[2] })) < 6);
 
 describe('extractPalette accuracy', () => {
   it('returns only real colors when band edges are blended (no muddy in-between swatch)', () => {
@@ -89,7 +112,11 @@ describe('extractPalette accuracy', () => {
   });
 
   it('weights by coverage: the biggest area comes first', () => {
-    const image = [[255, 0, 0, 10], [0, 0, 255, 60], [0, 160, 0, 30]].flatMap(([r, g, b, n]) => Array.from({ length: n }, () => [r, g, b, 255]).flat());
+    const image = [
+      [255, 0, 0, 10],
+      [0, 0, 255, 60],
+      [0, 160, 0, 30],
+    ].flatMap(([r, g, b, n]) => Array.from({ length: n }, () => [r, g, b, 255]).flat());
     const result = extractPaletteWithShares({ data: new Uint8ClampedArray(image) }, 3);
     expect(result.map(({ share }) => Math.round(share * 100))).toEqual([60, 30, 10]);
     expect(result[0].hex).toBe('#0000ff');
@@ -99,28 +126,40 @@ describe('extractPalette accuracy', () => {
     const result = extractPaletteWithShares(strip({ jitter: 4, edge: true }), 6);
     const total = result.reduce((sum, { share }) => sum + share, 0);
     expect(total).toBeCloseTo(1, 5);
-    expect(result.map(({ share }) => share)).toEqual([...result.map(({ share }) => share)].sort((a, b) => b - a));
+    expect(result.map(({ share }) => share)).toEqual(
+      [...result.map(({ share }) => share)].sort((a, b) => b - a),
+    );
   });
 
-  const solid = (...runs: [number, number, number, number][]) => ({ data: new Uint8ClampedArray(runs.flatMap(([r, g, b, n]) => Array.from({ length: n }, () => [r, g, b, 255]).flat())) });
+  const solid = (...runs: [number, number, number, number][]) => ({
+    data: new Uint8ClampedArray(
+      runs.flatMap(([r, g, b, n]) => Array.from({ length: n }, () => [r, g, b, 255]).flat()),
+    ),
+  });
 
   it('drops specks under 1% of the image, even if they are a very different color', () => {
     expect(extractPalette(solid([20, 120, 220, 199], [250, 10, 10, 1]), 6)).toEqual(['#1478dc']);
   });
 
   it('keeps a small but clearly different accent (like a sun in a landscape)', () => {
-    const palette = extractPalette(solid([20, 90, 160, 123], [255, 243, 176, 2]), 6); // 1.6% pale yellow on blue
+    // 1.6% pale yellow on blue
+    const palette = extractPalette(solid([20, 90, 160, 123], [255, 243, 176, 2]), 6);
     expect(palette).toHaveLength(2);
     expect(palette).toContain('#fff3b0');
   });
 
   it('drops a small patch that is only a variant of a bigger color', () => {
-    const palette = extractPalette(solid([20, 90, 160, 123], [30, 100, 170, 2]), 6); // 1.6%, barely different
+    // 1.6%, barely different
+    const palette = extractPalette(solid([20, 90, 160, 123], [30, 100, 170, 2]), 6);
     expect(palette).toEqual(['#145aa0']);
   });
 
   it('keeps a large mid-tone even though it lies between two other colors', () => {
-    const image = [[0, 0, 0, 35], [128, 128, 128, 30], [255, 255, 255, 35]].flatMap(([r, g, b, n]) => Array.from({ length: n }, () => [r, g, b, 255]).flat());
+    const image = [
+      [0, 0, 0, 35],
+      [128, 128, 128, 30],
+      [255, 255, 255, 35],
+    ].flatMap(([r, g, b, n]) => Array.from({ length: n }, () => [r, g, b, 255]).flat());
     expect(extractPalette({ data: new Uint8ClampedArray(image) }, 3)).toHaveLength(3);
   });
 
@@ -130,7 +169,11 @@ describe('extractPalette accuracy', () => {
     const palette = extractPalette({ data: new Uint8ClampedArray(data) }, 4);
     expect(palette.length).toBeGreaterThan(0);
     expect(palette.length).toBeLessThanOrEqual(4);
-    palette.forEach((a, i) => palette.slice(i + 1).forEach((b) => expect(deltaE(lab(a), lab(b))).toBeGreaterThanOrEqual(12)));
+    palette.forEach((a, i) =>
+      palette
+        .slice(i + 1)
+        .forEach((b) => expect(deltaE(lab(a), lab(b))).toBeGreaterThanOrEqual(12)),
+    );
   });
 
   it('is deterministic', () => {

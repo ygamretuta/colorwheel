@@ -13,14 +13,18 @@ export default function HarmonySelector({ value, onChange }: HarmonySelectorProp
   const id = useId();
   return (
     <>
-      <Label className="harmony__label" htmlFor={id}>Wheel type</Label>
+      <Label className="harmony__label" htmlFor={id}>
+        Wheel type
+      </Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger id={id} className="harmony__select w-full">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {Object.entries(HARMONIES).map(([id, { label }]) => (
-            <SelectItem key={id} value={id}>{label}</SelectItem>
+            <SelectItem key={id} value={id}>
+              {label}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>

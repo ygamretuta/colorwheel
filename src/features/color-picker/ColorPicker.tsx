@@ -16,7 +16,8 @@ function trackGradient(key: keyof Hsl, { h, s, l }: Hsl): string {
   if (key === 'h') {
     return `linear-gradient(to right, ${[0, 60, 120, 180, 240, 300, 360].map((deg) => hslToHex({ h: deg, s, l })).join(', ')})`;
   }
-  if (key === 's') return `linear-gradient(to right, ${hslToHex({ h, s: 0, l })}, ${hslToHex({ h, s: 100, l })})`;
+  if (key === 's')
+    return `linear-gradient(to right, ${hslToHex({ h, s: 0, l })}, ${hslToHex({ h, s: 100, l })})`;
   return `linear-gradient(to right, #000000, ${hslToHex({ h, s, l: 50 })}, #ffffff)`;
 }
 
@@ -47,11 +48,15 @@ function SwatchPanel({ hex, onSelect }: SwatchPanelProps) {
             value={Math.round(hsl[key])}
             style={{ backgroundImage: trackGradient(key, hsl) }}
             aria-label={label}
-            onChange={(event) => setHsl((current) => ({ ...current, [key]: Number(event.target.value) }))}
+            onChange={(event) =>
+              setHsl((current) => ({ ...current, [key]: Number(event.target.value) }))
+            }
           />
         </label>
       ))}
-      <Button className="color-panel__select" onClick={() => onSelect(draftHex)}>Select</Button>
+      <Button className="color-panel__select" onClick={() => onSelect(draftHex)}>
+        Select
+      </Button>
     </div>
   );
 }
@@ -62,8 +67,8 @@ interface ColorPickerProps {
 }
 
 /**
- * One field for the current color: a dot showing it, the hex text to type into, and a "Fine-tune" button that
- * opens the slider panel. `onChange` gets a normalized hex.
+ * One field for the current color: a dot showing it, the hex text to type into, and a "Fine-tune"
+ * button that opens the slider panel. `onChange` gets a normalized hex.
  */
 export default function ColorPicker({ hex, onChange }: ColorPickerProps) {
   const [draft, setDraft] = useState(hex);
@@ -72,13 +77,17 @@ export default function ColorPicker({ hex, onChange }: ColorPickerProps) {
 
   if (hex !== syncedHex) {
     setSyncedHex(hex);
-    // Leave the field alone when the change came from typing (e.g. "#e91" is already valid shorthand).
+    // Leave the field alone when the change came from typing (e.g. "#e91" is already valid
+    // shorthand).
     if (normalizeHex(draft) !== hex) setDraft(hex);
   }
 
   return (
     <div className="color-picker">
-      {/* The current color, shown once, as a dot: it is not a control, so nothing here competes with the swatches above. */}
+      {/*
+        The current color, shown once, as a dot: it is not a control, so nothing here competes with
+        the swatches above.
+      */}
       <span className="color-picker__dot" style={{ backgroundColor: hex }} aria-hidden="true" />
       <Input
         className="color-picker__hex"
@@ -95,7 +104,12 @@ export default function ColorPicker({ hex, onChange }: ColorPickerProps) {
       />
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button className="color-picker__tune" variant="ghost" size="sm" aria-label="Fine-tune color">
+          <Button
+            className="color-picker__tune"
+            variant="ghost"
+            size="sm"
+            aria-label="Fine-tune color"
+          >
             Fine-tune
           </Button>
         </PopoverTrigger>

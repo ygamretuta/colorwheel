@@ -21,13 +21,24 @@ interface PickColorsStepProps {
 }
 
 /**
- * Harmony exploration and the single suggested pairing, together on one screen; both follow `harmony`.
- * `context` is the colors the user chose themselves (pairings are tailored to them). `palette` is everything chosen so far, shown as a stacked preview under the
- * wheel swatches; the colors the wheel doesn't show also appear as small dots on the wheel.
- * On short phones, picking a swatch scrolls down to the pairings, and choosing a pairing
- * scrolls down to the end of the step so the Next button is in reach.
+ * Harmony exploration and the single suggested pairing, together on one screen; both follow
+ * `harmony`. `context` is the colors the user chose themselves (pairings are tailored to them).
+ * `palette` is everything chosen so far, shown as a stacked preview under the wheel swatches; the
+ * colors the wheel doesn't show also appear as small dots on the wheel. On short phones, picking a
+ * swatch scrolls down to the pairings, and choosing a pairing scrolls down to the end of the step
+ * so the Next button is in reach.
  */
-export default function PickColorsStep({ hex, harmony, onHarmonyChange, context = [], pairing, palette, onTogglePick, onChoosePairing, onRemoveColor }: PickColorsStepProps) {
+export default function PickColorsStep({
+  hex,
+  harmony,
+  onHarmonyChange,
+  context = [],
+  pairing,
+  palette,
+  onTogglePick,
+  onChoosePairing,
+  onRemoveColor,
+}: PickColorsStepProps) {
   const harmonyColors = generateHarmony(hex, harmony);
   const full = palette.length >= MAX_PALETTE_COLORS;
   const lockedColors = full ? harmonyColors.filter((color) => !palette.includes(color)) : [];

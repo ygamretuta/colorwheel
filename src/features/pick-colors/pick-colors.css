@@ -1,29 +1,80 @@
 /* Keep scroll targets clear of the fixed Back/Next bar (64px) plus a margin. */
-.pick-colors__pairings, .pick-colors__end { scroll-margin-bottom: var(--space-11); }
-.pick-colors__end { height: 1px; }
+.pick-colors__pairings,
+.pick-colors__end {
+  scroll-margin-bottom: var(--space-11);
+}
+.pick-colors__end {
+  height: 1px;
+}
 
 @media (min-width: 768px) {
-  .pick-colors { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); align-items: start; }
-  .pick-colors__pairings > .suggestions { margin-top: 0; }
-  .pick-colors__end { display: none; }
+  .pick-colors {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    align-items: start;
+  }
+  .pick-colors__pairings > .suggestions {
+    margin-top: 0;
+  }
+  .pick-colors__end {
+    display: none;
+  }
 }
-
 
 /* The stacked palette preview: colors touch, with no borders between them. */
-.stack { margin-top: var(--space-2); }
-.stack__title { font-size: 0.875rem; line-height: 1.25rem; font-weight: 600; }
+.stack {
+  margin-top: var(--space-2);
+}
+.stack__title {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+}
 .stack__bar {
-  display: flex; height: var(--space-9); margin-top: var(--space-1); overflow: hidden;
-  border-radius: var(--radius); box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06); /* a faint edge for the bar, so a white color doesn't vanish into the page */
+  display: flex;
+  height: var(--space-9);
+  margin-top: var(--space-1);
+  overflow: hidden;
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06); /* a faint edge for the bar, so a white color doesn't vanish into the page */
 }
 .stack__segment {
-  flex: 1 1 0; min-width: 0; margin: 0; padding: 0 0 var(--space-1); border: 0; border-radius: 0;
-  display: flex; align-items: flex-end; justify-content: center; cursor: pointer;
-  font: inherit; transition: flex-grow 200ms ease;
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 var(--space-1);
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  cursor: pointer;
+  font: inherit;
+  transition: flex-grow 200ms ease;
 }
-.stack__segment:active { filter: brightness(0.92); }
-.stack__segment:focus-visible { outline: 3px solid var(--ring); outline-offset: -3px; }
+.stack__segment:active {
+  filter: brightness(0.92);
+}
+.stack__segment:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: -3px;
+}
 /* An open slot: a dashed outline inside the bar, so it can't be mistaken for a pale color. */
-.stack__segment--empty { background: transparent; outline: 2px dashed var(--border); outline-offset: calc(var(--space-1) * -1); cursor: default; }
-.stack__label { font-family: ui-monospace, monospace; font-size: 0.75rem; line-height: 1rem; }
-.stack__hint { margin-top: var(--space-1); font-size: 0.75rem; line-height: 1rem; color: var(--muted-foreground); }
+.stack__segment--empty {
+  background: transparent;
+  outline: 2px dashed var(--border);
+  outline-offset: calc(var(--space-1) * -1);
+  cursor: default;
+}
+.stack__label {
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+.stack__hint {
+  margin-top: var(--space-1);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--muted-foreground);
+}
