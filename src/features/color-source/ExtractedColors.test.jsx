@@ -12,50 +12,66 @@ const setup = (props = {}) => {
 };
 
 describe('ExtractedColors', () => {
-  it('tapping a swatch picks the base color by default', async () => {
-    const { onPick } = setup();
-    await userEvent.click(screen.getByTitle('Use #00ff00'));
-    expect(onPick).toHaveBeenCalledWith('#00ff00');
+  it('lists the colors, with the current one marked', () => {
+    setup();
+    expect(screen.getByText('Colors in this image')).toBeTruthy();
+    expect(screen.getAllByTitle(/^Use #/)).toHaveLength(3);
+    expect(screen.getByTitle('Use #ff0000').getAttribute('aria-current')).toBe('true');
+    expect(screen.getByTitle('Use #00ff00').getAttribute('aria-current')).toBeNull();
   });
 
-  it('adds every color from the default button', async () => {
+  it('tapping a swatch picks it as the base color', async () => {
+    const { onPick, onAdd } = setup();
+    await userEvent.click(screen.getByTitle('Use #00ff00'));
+    expect(onPick).toHaveBeenCalledWith('#00ff00');
+    expect(onAdd).not.toHaveBeenCalled();
+  });
+
+  it('adds every color to the palette from the button and confirms', async () => {
     const { onAdd } = setup();
     await userEvent.click(screen.getByText('Add all to palette'));
+    expect(onAdd).toHaveBeenCalledTimes(1);
     expect(onAdd).toHaveBeenCalledWith(COLORS);
     expect(screen.getByText('Added to palette ✓')).toBeTruthy();
   });
 
-  it('select-multiple mode toggles swatches instead of picking', async () => {
-    const { onPick } = setup();
-    await userEvent.click(screen.getByText('Select multiple'));
-    await userEvent.click(screen.getByTitle('Add #00ff00'));
-    await userEvent.click(screen.getByTitle('Add #0000ff'));
-    expect(onPick).not.toHaveBeenCalled();
-    expect(screen.getByTitle('Remove #00ff00').getAttribute('aria-pressed')).toBe('true');
-    expect(screen.getByText('Add selected (2) to palette')).toBeTruthy();
-  });
-
-  it('adds only the selected colors, then clears the selection', async () => {
-    const { onAdd } = setup();
-    await userEvent.click(screen.getByText('Select multiple'));
-    expect(screen.getByText(/^Add selected \(0\)/).closest('button').disabled).toBe(true);
-    await userEvent.click(screen.getByTitle('Add #ff0000'));
-    await userEvent.click(screen.getByTitle('Add #0000ff'));
-    await userEvent.click(screen.getByText('Add selected (2) to palette'));
-    expect(onAdd).toHaveBeenCalledWith(['#ff0000', '#0000ff']);
-    expect(screen.getByText('Added 2 to palette ✓')).toBeTruthy();
-    expect(screen.getByTitle('Add #ff0000').getAttribute('aria-pressed')).toBe('false');
-  });
-
-  it('can deselect, and leaving the mode drops the selection', async () => {
+  it('has no multi-select controls', () => {
     setup();
-    await userEvent.click(screen.getByText('Select multiple'));
-    await userEvent.click(screen.getByTitle('Add #ff0000'));
-    await userEvent.click(screen.getByTitle('Remove #ff0000'));
-    expect(screen.getByText(/^Add selected \(0\)/)).toBeTruthy();
-    await userEvent.click(screen.getByTitle('Add #ff0000'));
-    await userEvent.click(screen.getByText('Done selecting'));
-    await userEvent.click(screen.getByText('Select multiple'));
-    expect(screen.getByText(/^Add selected \(0\)/)).toBeTruthy();
+    expect(screen.queryByText('Select multiple')).toBeNull();
+    expect(screen.queryByText(/Add selected/)).toBeNull();
+    expect(screen.queryByText(/selected/i)).toBeNull();
+  });
+
+  it('swatches are plain picks, not toggles', () => {
+    setup();
+    screen.getAllByTitle(/^Use #/).forEach((swatch) => expect(swatch.getAttribute('aria-pressed')).toBeNull());
+  });
+});
+
+describe('ExtractedColors with more colors than the palette holds', () => {
+  const SIX = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff'];
+
+  it('offers to add only the top four', () => {
+    render(<ExtractedColors colors={SIX} activeHex="#ff0000" onPick={() => {}} onAdd={() => ({ added: 4, total: 6 })} />);
+    expect(screen.getByText('Add top 4 to palette')).toBeTruthy();
+  });
+
+  it('says how many fit after adding', async () => {
+    render(<ExtractedColors colors={SIX} activeHex="#ff0000" onPick={() => {}} onAdd={() => ({ added: 4, total: 6 })} />);
+    await userEvent.click(screen.getByText('Add top 4 to palette'));
+    expect(screen.getByText('Added 4 of 6 (palette holds 4) ✓')).toBeTruthy();
+  });
+
+  it('says so when the palette had no room at all', async () => {
+    render(<ExtractedColors colors={SIX} activeHex="#ff0000" onPick={() => {}} onAdd={() => ({ added: 0, total: 6 })} />);
+    await userEvent.click(screen.getByText('Add top 4 to palette'));
+    expect(screen.getByText('Palette is full: remove a color first')).toBeTruthy();
+  });
+
+  it('keeps the plain wording for four colors or fewer', async () => {
+    render(<ExtractedColors colors={SIX.slice(0, 4)} activeHex="#ff0000" onPick={() => {}} onAdd={() => ({ added: 4, total: 4 })} />);
+    expect(screen.getByText('Add all to palette')).toBeTruthy();
+    await userEvent.click(screen.getByText('Add all to palette'));
+    expect(screen.getByText('Added to palette ✓')).toBeTruthy();
   });
 });

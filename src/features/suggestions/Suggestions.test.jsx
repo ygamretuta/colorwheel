@@ -54,3 +54,33 @@ describe('Suggestions', () => {
     expect(container.querySelectorAll('.swatches button')).toHaveLength(0);
   });
 });
+
+describe('Suggestions are never disabled', () => {
+  it('every pairing can be chosen, whatever the palette holds', async () => {
+    const onChoose = vi.fn();
+    const { container } = render(<Suggestions hex={HEX} harmony="square" chosen={[]} onChoose={onChoose} />);
+    const buttons = screen.getAllByText('Choose');
+    expect(buttons).toHaveLength(3);
+    buttons.forEach((button) => expect(button.closest('button').disabled).toBe(false));
+    expect(container.querySelectorAll('.suggestions__item--blocked')).toHaveLength(0);
+    expect(screen.queryByText('No room')).toBeNull();
+    expect(screen.queryByText(/Your palette is full/)).toBeNull();
+
+    await userEvent.click(buttons[2]);
+    expect(onChoose).toHaveBeenCalledWith(setOf(2));
+  });
+
+  it('the whole tile stays clickable', async () => {
+    const onChoose = vi.fn();
+    const { container } = render(<Suggestions hex={HEX} harmony="square" chosen={[]} onChoose={onChoose} />);
+    await userEvent.click(container.querySelector('[data-suggestion="balanced-pair"] p'));
+    expect(onChoose).toHaveBeenCalledWith(setOf(1));
+  });
+
+  it('the chosen pairing can be cleared', async () => {
+    const onChoose = vi.fn();
+    render(<Suggestions hex={HEX} harmony="square" chosen={setOf(0)} onChoose={onChoose} />);
+    await userEvent.click(screen.getByText('✓ Chosen'));
+    expect(onChoose).toHaveBeenCalledWith(setOf(0));
+  });
+});

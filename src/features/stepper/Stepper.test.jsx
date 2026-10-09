@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StepHeader, StepNav } from './Stepper.jsx';
 import { STEPS } from './steps.js';
 
@@ -31,19 +31,61 @@ describe('StepNav', () => {
     expect(onNext).not.toHaveBeenCalled();
   });
 
-  it('offers Skip to palette in the Back slot on step 1 only when allowed', async () => {
-    const onSkip = vi.fn();
-    const { rerender } = render(<StepNav index={0} onBack={() => {}} onNext={() => {}} canSkip={false} onSkip={onSkip} />);
-    expect(screen.queryByText('Skip to palette')).toBeNull();
+  it('never offers Skip to palette (that shortcut was removed)', () => {
+    [0, 1, 2].forEach((index) => {
+      const { unmount } = render(<StepNav index={index} onBack={() => {}} onNext={() => {}} onRestart={() => {}} />);
+      expect(screen.queryByText('Skip to palette')).toBeNull();
+      unmount();
+    });
+  });
 
-    rerender(<StepNav index={0} onBack={() => {}} onNext={() => {}} canSkip onSkip={onSkip} />);
-    await userEvent.click(screen.getByText('Skip to palette'));
-    expect(onSkip).toHaveBeenCalledTimes(1);
-    expect(screen.queryByText('Back')).toBeNull();
+  it('keeps Back in its slot on step 1, hidden because there is nothing to go back to', () => {
+    render(<StepNav index={0} onBack={() => {}} onNext={() => {}} />);
+    expect(screen.getByText('Back').closest('button').disabled).toBe(true);
+  });
+});
 
-    rerender(<StepNav index={1} onBack={() => {}} onNext={() => {}} canSkip onSkip={onSkip} />);
-    expect(screen.queryByText('Skip to palette')).toBeNull();
-    expect(screen.getByText('Back')).toBeTruthy();
+describe('StepHeader reset', () => {
+  afterEach(() => vi.useRealTimers());
+
+  it('has no Reset button unless onReset is given', () => {
+    render(<StepHeader index={0} />);
+    expect(screen.queryByRole('button', { name: /reset/i })).toBeNull();
+  });
+
+  it('asks for confirmation on the first tap and resets on the second', async () => {
+    const onReset = vi.fn();
+    render(<StepHeader index={1} onReset={onReset} />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reset and start over' }));
+    expect(onReset).not.toHaveBeenCalled();
+    expect(screen.getByText('Confirm')).toBeTruthy();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Confirm reset' }));
+    expect(onReset).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Reset')).toBeTruthy();
+  });
+
+  it('disarms after a few seconds without a second tap', () => {
+    vi.useFakeTimers();
+    const onReset = vi.fn();
+    render(<StepHeader index={0} onReset={onReset} />);
+
+    act(() => screen.getByText('Reset').click());
+    expect(screen.getByText('Confirm')).toBeTruthy();
+    act(() => vi.advanceTimersByTime(3100));
+    expect(screen.getByText('Reset')).toBeTruthy();
+
+    act(() => screen.getByText('Reset').click()); // needs a fresh confirmation
+    expect(onReset).not.toHaveBeenCalled();
+  });
+
+  it('does not carry an armed state over to another step', async () => {
+    const { rerender } = render(<StepHeader index={0} onReset={() => {}} />);
+    await userEvent.click(screen.getByText('Reset'));
+    expect(screen.getByText('Confirm')).toBeTruthy();
+    rerender(<StepHeader index={1} onReset={() => {}} />);
+    expect(screen.getByText('Reset')).toBeTruthy();
   });
 });
 

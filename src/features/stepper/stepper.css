@@ -1,5 +1,6 @@
 .stepper__header { margin-bottom: var(--space-2); }
-.stepper__row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-1); }
+.stepper__row { display: flex; align-items: center; gap: var(--space-1); }
+.stepper__title { flex: 1; }
 .stepper__count { font-size: 0.75rem; line-height: 1rem; color: var(--muted-foreground); white-space: nowrap; }
 .stepper__bar { display: flex; gap: var(--space-1); margin: var(--space-1) 0 0; padding: 0; list-style: none; }
 .stepper__segment { flex: 1; height: var(--space-half); border-radius: 9999px; background: var(--border); }
@@ -25,3 +26,10 @@
     border: 0; display: flex; justify-content: space-between;
   }
 }
+
+/* Reset: a 48px touch target that doesn't make the header any taller (negative margin cancels the extra height). */
+.stepper__reset {
+  min-height: var(--control-height); margin-block: calc((var(--control-height) - var(--space-3)) / -2);
+  padding-inline: var(--space-1); font-size: 0.875rem; color: var(--muted-foreground);
+}
+.stepper__reset--armed { color: var(--destructive); font-weight: 600; }

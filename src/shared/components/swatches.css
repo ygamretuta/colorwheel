@@ -35,3 +35,6 @@ button.swatches__item { cursor: pointer; }
   .swatches--compact .swatches__item { min-height: var(--space-8); }
   .swatches--chip .swatches__item { flex-basis: var(--space-5); min-height: var(--space-5); }
 }
+
+/* Can't be added right now (the palette is full): dimmed and not tappable. */
+.swatches__item--locked { opacity: 0.4; cursor: not-allowed; }

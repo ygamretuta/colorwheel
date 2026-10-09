@@ -6,14 +6,17 @@ import { suggestPairings } from './suggest.js';
 const sameColors = (a, b) => a.length === b.length && a.every((color, i) => color === b[i]);
 
 /**
- * Pairing ideas for the base color within the chosen wheel type (`harmony`), as compact rows. Exactly one can be chosen: click the
- * row (or its button) to choose it, and click again to clear. `onChoose(colors)` toggles it.
+ * Pairing ideas for the base color within the chosen wheel type (`harmony`), as compact rows. `context` is the
+ * user's other chosen colors, so the ideas suit the whole combination. Exactly one can be chosen: click the row
+ * (or its button) to choose it, which makes it the whole palette, and click again to clear it.
+ * `onChoose(colors)` toggles it. A pairing is never disabled: choosing one replaces whatever was in the palette.
  */
-export default function Suggestions({ hex, harmony, chosen, onChoose }) {
+export default function Suggestions({ hex, harmony, context = [], chosen, onChoose }) {
+  const pairings = suggestPairings(hex, harmony, context);
   return (
     <section className="suggestions" aria-label="Suggested pairings">
       <h3 className="suggestions__heading">Or choose one suggested pairing</h3>
-      {suggestPairings(hex, harmony).map(({ id, label, reason, colors }) => {
+      {pairings.map(({ id, label, reason, colors }) => {
         const set = [hex, ...colors];
         const isChosen = sameColors(set, chosen);
         return (
@@ -25,7 +28,7 @@ export default function Suggestions({ hex, harmony, chosen, onChoose }) {
           >
             <div className="suggestions__info">
               <p className="suggestions__label">{label}</p>
-              <Swatches colors={set} activeHex={hex} size="chip" />
+              <Swatches colors={set} size="chip" />
               <p className="suggestions__reason">{reason}</p>
             </div>
             <Button

@@ -40,3 +40,22 @@ describe('Swatches active vs selected', () => {
   });
 });
 
+describe('Swatches disabledColors', () => {
+  it('shows disabled colors dimmed and does not let them be tapped', async () => {
+    const onSelect = vi.fn();
+    render(<Swatches colors={['#ff0000', '#00ff00']} selected={['#ff0000']} onSelect={onSelect} disabledColors={['#00ff00']} />);
+    const locked = screen.getByTitle(/Palette is full: remove a color to add #00ff00/);
+    expect(locked.disabled).toBe(true);
+    expect(locked.className).toContain('swatches__item--locked');
+    await userEvent.click(locked);
+    expect(onSelect).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByTitle('Remove #ff0000')); // selected colors can always be removed
+    expect(onSelect).toHaveBeenCalledWith('#ff0000');
+  });
+
+  it('ignores disabledColors on read-only swatches', () => {
+    const { container } = render(<Swatches colors={['#ff0000']} disabledColors={['#ff0000']} />);
+    expect(container.querySelector('.swatches__item--locked')).toBeNull();
+  });
+});

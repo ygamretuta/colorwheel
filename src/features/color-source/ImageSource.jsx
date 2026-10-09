@@ -11,10 +11,12 @@ const HAS_EYEDROPPER = typeof window !== 'undefined' && 'EyeDropper' in window;
 
 /**
  * Image intake (file/camera, screen capture, paste, EyeDropper) with click-to-pick.
- * Each loaded image is also analysed for its dominant colors, which can be tapped to
- * use one as the base color (`onPick`) or be added to the palette, all or a selected few (`onAddAll(colors)`).
+ * Each loaded image is analysed for its dominant colors and reported with `onImageLoaded(colors)`
+ * (most common first, possibly empty) so the parent can start over from it. The colors are then
+ * shown as swatches: tap one to use it as the base (`onPick`), or add some or all of them to the
+ * palette (`onAddAll(colors)`).
  */
-export default function ImageSource({ hex, onPick, onAddAll }) {
+export default function ImageSource({ hex, onPick, onImageLoaded, onAddAll }) {
   const canvasRef = useRef(null);
   const fileRef = useRef(null);
   const [hasImage, setHasImage] = useState(false);
@@ -33,6 +35,9 @@ export default function ImageSource({ hex, onPick, onAddAll }) {
     const colors = pixels ? extractPalette(pixels, PALETTE_SIZE) : [];
     setExtracted(colors);
     setImageVersion((version) => version + 1);
+    // A new image is a fresh start: the parent drops everything chosen from the previous one and
+    // adopts this image's most common color as the base.
+    onImageLoaded(colors);
     // The color row explains itself; only fall back to a hint when nothing could be extracted.
     setStatus(colors.length > 0 ? '' : 'Tap the image to pick a color.');
   }

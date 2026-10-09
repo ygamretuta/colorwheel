@@ -44,7 +44,27 @@ export default function App() {
     setPaletteState(EMPTY_PALETTE);
     setSession((current) => current + 1); // remounts the steps so the loaded image is dropped too
   };
-  const skipToPalette = () => setStep(STEPS.length - 1);
+  // A new image starts the work over: whatever was chosen from the previous one (picks, auto-selected
+  // wheel colors, a chosen pairing) is dropped, and the image's most common color becomes the base.
+  // The wheel type is a preference, so it stays.
+  const startFromImage = (colors) => {
+    setPaletteState(EMPTY_PALETTE);
+    const first = normalizeHex(colors[0] ?? '');
+    if (first) setHex(first);
+  };
+  // Colors added from an image become the working set: the first one is the base the wheel is built
+  // on (unless the current base is already among them), so step 2 reflects what was picked.
+  const addImageColors = (colors) => {
+    const normalized = colors.map(normalizeHex).filter(Boolean);
+    if (normalized.length === 0) return { added: 0, total: 0 };
+    const nextBase = normalized.includes(hex) ? hex : normalized[0];
+    if (nextBase !== hex) setHex(nextBase);
+    // A pairing built on the old base no longer applies, so clear it first and let the freed room count.
+    const next = addPicks(nextBase === hex ? paletteState : clearPairing(paletteState), normalized);
+    setPaletteState(next);
+    const inPalette = paletteColors(next);
+    return { added: normalized.filter((color) => inPalette.includes(color)).length, total: normalized.length };
+  };
   const go = (delta) => {
     const next = clampStep(step + delta);
     setStep(next);
@@ -56,12 +76,12 @@ export default function App() {
     <main className="app">
       <title>{`${STEPS[step].title} · Color Wheel`}</title>
       <h1 className="app__title">Color Wheel</h1>
-      <StepHeader index={step} />
+      <StepHeader index={step} onReset={step < STEPS.length - 1 ? restart : undefined} />
 
       <section key={session} className="app__step" aria-live="polite">
         {/* Activity keeps step 1's state (the loaded image) while hidden, and pauses its effects. */}
         <Activity mode={step === 0 ? 'visible' : 'hidden'}>
-          <ImageSource hex={hex} onPick={setColor} onAddAll={(colors) => setPaletteState((state) => addPicks(state, colors))} />
+          <ImageSource hex={hex} onPick={setColor} onImageLoaded={startFromImage} onAddAll={addImageColors} />
           <ColorPicker hex={hex} onChange={setColor} />
         </Activity>
         {step === 1 && (
@@ -69,8 +89,10 @@ export default function App() {
             hex={hex}
             harmony={harmony}
             onHarmonyChange={changeHarmony}
-            picks={paletteState.picks}
             pairing={paletteState.pairing}
+            palette={palette}
+            context={paletteState.picks.filter((color) => !paletteState.auto.includes(color))}
+            onRemoveColor={(color) => setPaletteState((state) => removeColor(state, color))}
             onTogglePick={(color) => setPaletteState((state) => togglePick(state, color))}
             onChoosePairing={(colors) => setPaletteState((state) => choosePairing(state, colors))}
           />
@@ -84,7 +106,7 @@ export default function App() {
         )}
       </section>
 
-      <StepNav index={step} onBack={() => go(-1)} onNext={() => go(1)} onRestart={restart} canSkip={palette.length > 0} onSkip={skipToPalette} />
+      <StepNav index={step} onBack={() => go(-1)} onNext={() => go(1)} onRestart={restart} />
     </main>
   );
 }

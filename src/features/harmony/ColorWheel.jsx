@@ -1,10 +1,13 @@
 import './harmony.css';
 import { useEffect, useRef } from 'react';
-import { hslToHex } from '@/shared/color/convert.js';
+import { hslToHex, isNeutral } from '@/shared/color/convert.js';
 import { hueOf } from '@/features/harmony/harmony.js';
 
-/** Draw a hue ring and mark each color's hue; the first color is the base. */
-export function drawWheel(canvas, colors) {
+/**
+ * Draw a hue ring and mark each color's hue; the first color is the base. `others` are the user's
+ * remaining chosen colors, drawn as small dots (inside the harmony points) so the whole combination shows.
+ */
+export function drawWheel(canvas, colors, others = []) {
   const context = canvas.getContext('2d');
   if (!context) return;
   const { width, height } = canvas;
@@ -23,10 +26,14 @@ export function drawWheel(canvas, colors) {
     context.stroke();
   }
 
-  const points = colors.map((hex) => {
+  // Greys, whites and blacks have no hue, so they sit at the centre instead of at a meaningless angle.
+  const position = (hex, radius) => {
+    if (isNeutral(hex)) return { x: center.x, y: center.y };
     const angle = ((hueOf(hex) - 90) * Math.PI) / 180;
-    return { hex, x: center.x + Math.cos(angle) * inner * 0.8, y: center.y + Math.sin(angle) * inner * 0.8 };
-  });
+    return { x: center.x + Math.cos(angle) * radius, y: center.y + Math.sin(angle) * radius };
+  };
+
+  const points = colors.map((hex) => ({ hex, ...position(hex, inner * 0.8) }));
 
   context.strokeStyle = 'rgba(0, 0, 0, 0.35)';
   context.lineWidth = outer * 0.03;
@@ -43,11 +50,29 @@ export function drawWheel(canvas, colors) {
     context.lineWidth = outer * 0.05;
     context.strokeStyle = '#fff';
     context.stroke();
+    // thin dark edge so white and very light colors still show against the white inside of the ring
+    context.lineWidth = outer * 0.015;
+    context.strokeStyle = 'rgba(0, 0, 0, 0.45)';
+    context.stroke();
+  });
+
+  others.forEach((hex) => {
+    const { x, y } = position(hex, inner * 0.45);
+    context.beginPath();
+    context.arc(x, y, outer * 0.09, 0, Math.PI * 2);
+    context.fillStyle = hex;
+    context.fill();
+    context.lineWidth = outer * 0.04;
+    context.strokeStyle = '#fff';
+    context.stroke();
+    context.lineWidth = outer * 0.015;
+    context.strokeStyle = 'rgba(0, 0, 0, 0.45)';
+    context.stroke();
   });
 }
 
-export default function ColorWheel({ colors }) {
+export default function ColorWheel({ colors, others = [] }) {
   const ref = useRef(null);
-  useEffect(() => drawWheel(ref.current, colors), [colors]);
-  return <canvas ref={ref} className="harmony__wheel" width="240" height="240" aria-label="Color wheel showing the selected harmony" />;
+  useEffect(() => drawWheel(ref.current, colors, others), [colors, others]);
+  return <canvas ref={ref} className="harmony__wheel" width="240" height="240" aria-label={others.length ? "Color wheel showing the selected harmony and your other chosen colors" : "Color wheel showing the selected harmony"} />;
 }

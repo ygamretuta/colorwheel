@@ -12,10 +12,7 @@
 .source__hint { padding: var(--space-2); text-align: center; color: var(--muted-foreground); }
 .source__canvas { display: block; max-width: 100%; max-height: 8rem; cursor: crosshair; }
 .source__colors { display: grid; gap: var(--space-2); margin-top: var(--space-2); }
-.source__colors-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); }
 .source__colors-title { font-size: 0.875rem; line-height: 1.25rem; font-weight: 600; }
-.source__mode { gap: var(--space-1); min-height: var(--control-height); padding-inline: var(--space-1); }
-.source__legend { font-size: 0.75rem; line-height: 1rem; color: var(--muted-foreground); }
 .source__status { margin-top: var(--space-1); font-size: 0.875rem; line-height: 1.25rem; color: var(--muted-foreground); }
 .source__status:empty { display: none; }
 
