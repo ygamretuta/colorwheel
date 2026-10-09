@@ -14,6 +14,10 @@ npm run test:ui  # Vitest web view (watch mode); open the link it prints
 npm run build    # production build in dist/
 ```
 
+## CI
+
+GitHub Actions (`.github/workflows/ci.yml`) runs `npm ci`, `npm test` and `npm run build` on every push to `main` and on every pull request. Node version comes from `.nvmrc`.
+
 ## Structure
 
 ```
