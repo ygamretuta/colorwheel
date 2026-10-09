@@ -1,0 +1,8 @@
+# Mechanical commits that only reformat or reorder code. `git blame` skips them.
+# Locally: git config blame.ignoreRevsFile .git-blame-ignore-revs   (GitHub does this on its own)
+
+# Add Prettier and format the codebase
+ee9eb18adfdfeb9fe5182aa9ac1880100ae343b1
+
+# Sort imports consistently (eslint-plugin-simple-import-sort)
+ad4d85a55c71e6606863b2c7f256978ca56b5df9
