@@ -1,5 +1,5 @@
 import { luminance, readableTextColor } from '@/shared/color/contrast.js';
-import { hexToHsl, hexToRgb, hslToHex, normalizeHex, setLightness } from '@/shared/color/convert.js';
+import { chroma, hexToHsl, hslToHex, normalizeHex, setLightness } from '@/shared/color/convert.js';
 import { contrastRatio } from '@/shared/color/contrast.js';
 
 const MIN_COLORS = 4;
@@ -28,12 +28,6 @@ function completePalette(colors) {
     if (!pool.includes(filler)) pool.push(filler);
   }
   return pool;
-}
-
-/** How colorful a color is (0 = grey, 1 = fully saturated), independent of lightness. */
-export function chroma(hex) {
-  const { r, g, b } = hexToRgb(hex);
-  return (Math.max(r, g, b) - Math.min(r, g, b)) / 255;
 }
 
 /**

@@ -75,3 +75,17 @@ export function rotateHue(hex, degrees) {
 export function setLightness(hex, l) {
   return hslToHex({ ...hexToHsl(hex), l: clamp(l, 0, 100) });
 }
+
+/** How colorful a color is (0 = grey, 1 = fully saturated), independent of lightness. */
+export function chroma(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  return (Math.max(r, g, b) - Math.min(r, g, b)) / 255;
+}
+
+const NEUTRAL_CHROMA = 0.08; // under ~20/255 of channel spread a color reads as grey, white or black
+
+/**
+ * True for greys, whites, blacks and tints so faint they have no usable hue. HSL saturation can't be
+ * used for this: near-white and near-black colors report a high saturation despite looking neutral.
+ */
+export const isNeutral = (hex) => chroma(hex) < NEUTRAL_CHROMA;
