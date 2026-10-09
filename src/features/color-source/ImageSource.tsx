@@ -3,6 +3,7 @@ import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { Button } from '@/shared/ui/button';
 import './color-source.css';
 import ExtractedColors from './ExtractedColors';
+import RandomColors from './RandomColors';
 import { extractPalette, readSmallImageData } from './extract';
 import { sampleCanvas, toCanvasPoint } from './sample';
 
@@ -132,8 +133,10 @@ export default function ImageSource({ hex, onPick, onImageLoaded, onAddAll }: Im
           {!hasImage && <p className="source__hint">Choose a source, or paste a screenshot (Ctrl/⌘+V).</p>}
           <canvas ref={canvasRef} className="source__canvas" hidden={!hasImage} onClick={handleCanvasClick} />
         </div>
-        {extracted.length > 0 && (
+        {extracted.length > 0 ? (
           <ExtractedColors key={imageVersion} colors={extracted} activeHex={hex} onPick={onPick} onAdd={onAddAll} />
+        ) : (
+          <RandomColors activeHex={hex} onPick={onPick} />
         )}
         <p className="source__status" role="status">{status}</p>
     </div>

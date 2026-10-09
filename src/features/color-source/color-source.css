@@ -23,3 +23,8 @@
   .source__add { justify-self: start; }
 }
 @media (min-width: 1024px) { .source__canvas { max-height: 26rem; } }
+
+/* Random starting colors: shown before an image is loaded. */
+.source__random { margin-top: var(--space-2); }
+.source__random-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); }
+.source__shuffle { gap: var(--space-1); min-height: var(--control-height); padding-inline: var(--space-1); }
