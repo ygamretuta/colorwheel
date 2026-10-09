@@ -18,6 +18,7 @@ const PICK_COLORS_STEP = 1;
 
 export default function App() {
   const [step, setStep] = useState(0);
+  const [furthest, setFurthest] = useState(0); // the furthest step reached; later ones stay locked in the progress bar
   const [hex, setHex] = useState(DEFAULT_HEX);
   const [harmony, setHarmony] = useState(DEFAULT_HARMONY);
   const [session, setSession] = useState(0);
@@ -39,6 +40,7 @@ export default function App() {
   };
   const restart = () => {
     setStep(0);
+    setFurthest(0);
     setHex(DEFAULT_HEX);
     setHarmony(DEFAULT_HARMONY);
     setPaletteState(EMPTY_PALETTE);
@@ -49,6 +51,7 @@ export default function App() {
   // The wheel type is a preference, so it stays.
   const startFromImage = (colors) => {
     setPaletteState(EMPTY_PALETTE);
+    setFurthest((reached) => Math.min(reached, PICK_COLORS_STEP)); // the steps after "Pick your colors" were built on the old image
     const first = normalizeHex(colors[0] ?? '');
     if (first) setHex(first);
   };
@@ -65,18 +68,21 @@ export default function App() {
     const inPalette = paletteColors(next);
     return { added: normalized.filter((color) => inPalette.includes(color)).length, total: normalized.length };
   };
-  const go = (delta) => {
-    const next = clampStep(step + delta);
+  // The one way to change step (Back, Next and the progress bar all use it).
+  const goTo = (target) => {
+    const next = clampStep(target);
     setStep(next);
+    setFurthest((reached) => Math.max(reached, next));
     // Arriving at "Pick your colors" with nothing chosen selects the wheel's colors.
     if (next === PICK_COLORS_STEP) setPaletteState((state) => applyAutoHarmony(state, generateHarmony(hex, harmony)));
   };
+  const go = (delta) => goTo(step + delta);
 
   return (
     <main className="app">
       <title>{`${STEPS[step].title} · Color Wheel`}</title>
       <h1 className="app__title">Color Wheel</h1>
-      <StepHeader index={step} onReset={step < STEPS.length - 1 ? restart : undefined} />
+      <StepHeader index={step} furthest={furthest} onGoTo={goTo} onReset={step < STEPS.length - 1 ? restart : undefined} />
 
       <section key={session} className="app__step" aria-live="polite">
         {/* Activity keeps step 1's state (the loaded image) while hidden, and pauses its effects. */}

@@ -5,3 +5,9 @@ export const STEPS = [
 ];
 
 export const clampStep = (index, count = STEPS.length) => Math.min(count - 1, Math.max(0, index));
+
+/**
+ * A step can be jumped to once it has been reached. Steps beyond the furthest one reached stay locked, so
+ * the setup each step does on arrival (such as selecting the wheel's colors) is never skipped.
+ */
+export const canVisit = (index, furthest) => index >= 0 && index <= furthest;

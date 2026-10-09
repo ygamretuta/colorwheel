@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import './stepper.css';
 import { Button } from '@/shared/ui/button.jsx';
-import { STEPS } from './steps.js';
+import { STEPS, canVisit } from './steps.js';
 
 const CONFIRM_WINDOW_MS = 3000;
 
@@ -35,8 +35,12 @@ function ResetButton({ onReset }) {
   );
 }
 
-/** Progress header for the current step. `onReset`, when given, adds a two-tap Reset button. */
-export function StepHeader({ index, onReset }) {
+/**
+ * Progress header for the current step. `onReset`, when given, adds a two-tap Reset button. With `onGoTo`,
+ * each segment of the progress bar becomes a button that jumps to that step; steps beyond `furthest` (the
+ * furthest step reached so far) stay locked.
+ */
+export function StepHeader({ index, furthest = index, onGoTo, onReset }) {
   const { title, hint } = STEPS[index];
   return (
     <header className="stepper__header">
@@ -45,10 +49,25 @@ export function StepHeader({ index, onReset }) {
         {onReset && <ResetButton key={index} onReset={onReset} />}
         <p className="stepper__count">Step {index + 1} of {STEPS.length}</p>
       </div>
-      <ol className="stepper__bar" aria-hidden="true">
-        {STEPS.map((step, i) => (
-          <li key={step.id} className={`stepper__segment${i <= index ? ' stepper__segment--done' : ''}`} />
-        ))}
+      <ol className="stepper__bar" aria-label="Steps">
+        {STEPS.map((step, i) => {
+          const state = i <= index ? 'stepper__segment--done' : canVisit(i, furthest) ? 'stepper__segment--visited' : '';
+          return (
+            <li key={step.id} className={`stepper__segment ${state}`.trim()}>
+              {onGoTo ? (
+                <button
+                  type="button"
+                  className="stepper__jump"
+                  aria-label={`Step ${i + 1}: ${step.title}`}
+                  aria-current={i === index ? 'step' : undefined}
+                  title={canVisit(i, furthest) ? step.title : `${step.title} (not reached yet)`}
+                  disabled={!canVisit(i, furthest)}
+                  onClick={() => i !== index && onGoTo(i)}
+                />
+              ) : null}
+            </li>
+          );
+        })}
       </ol>
       <p className="stepper__hint">{hint}</p>
     </header>

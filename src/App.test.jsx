@@ -266,6 +266,114 @@ describe('choosing a suggested pairing on step 2', () => {
   });
 });
 
+describe('clicking the progress bar', () => {
+  const bar = (n) => screen.getByRole('button', { name: new RegExp(`^Step ${n}:`) });
+  const onStep = (n) => expect(screen.getByText(`Step ${n} of 3`)).toBeTruthy();
+  const next = () => userEvent.click(screen.getByText(/^Next: /));
+
+  it('starts with only the first step reachable', () => {
+    render(<App />);
+    expect(bar(1).disabled).toBe(false);
+    expect(bar(2).disabled).toBe(true);
+    expect(bar(3).disabled).toBe(true);
+  });
+
+  it('unlocks each step as it is reached', async () => {
+    render(<App />);
+    await next();
+    expect(bar(2).disabled).toBe(false);
+    expect(bar(3).disabled).toBe(true);
+    await next();
+    expect(bar(3).disabled).toBe(false);
+  });
+
+  it('goes straight back to step 1 from the last step in one click', async () => {
+    render(<App />);
+    await next();
+    await next();
+    onStep(3);
+    await userEvent.click(bar(1));
+    onStep(1);
+    expect(document.title).toBe('Get a color · Color Wheel');
+  });
+
+  it('goes straight forward again to a step reached before', async () => {
+    render(<App />);
+    await next();
+    await next();
+    await userEvent.click(bar(1));
+    await userEvent.click(bar(3));
+    onStep(3);
+    expect(screen.getByText('Start over')).toBeTruthy();
+  });
+
+  it('jumps to the middle step too', async () => {
+    render(<App />);
+    await next();
+    await next();
+    await userEvent.click(bar(2));
+    onStep(2);
+    expect(screen.getByText(/of 4 colors in your palette/)).toBeTruthy();
+  });
+
+  it('cannot reach a step that has not been reached yet', async () => {
+    render(<App />);
+    await userEvent.click(bar(3)); // locked
+    onStep(1);
+    await next();
+    await userEvent.click(bar(3)); // still locked
+    onStep(2);
+  });
+
+  it('keeps the palette when jumping around', async () => {
+    render(<App />);
+    await next();
+    const before = stackColors();
+    expect(before.length).toBeGreaterThan(0);
+    await userEvent.click(bar(1));
+    await userEvent.click(bar(2));
+    expect(stackColors()).toEqual(before);
+  });
+
+  it('keeps choices made on step 2 when jumping back and forth', async () => {
+    render(<App />);
+    await next();
+    await userEvent.click(screen.getAllByText('Choose')[0]);
+    const chosen = stackColors();
+    await userEvent.click(bar(1));
+    await userEvent.click(bar(2));
+    expect(stackColors()).toEqual(chosen);
+    expect(document.querySelectorAll('.suggestions__item--picked')).toHaveLength(1);
+  });
+
+  it('still selects the wheel colors on arrival at step 2 by clicking the bar', async () => {
+    render(<App />);
+    await next();
+    await userEvent.click(bar(1));
+    await userEvent.click(bar(2));
+    expect(stackColors().length).toBeGreaterThan(0);
+  });
+
+  it('locks the later steps again after Reset', async () => {
+    render(<App />);
+    await next();
+    await userEvent.click(screen.getByRole('button', { name: 'Reset and start over' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Confirm reset' }));
+    onStep(1);
+    expect(bar(2).disabled).toBe(true);
+    expect(bar(3).disabled).toBe(true);
+  });
+
+  it('locks the later steps again after Start over', async () => {
+    render(<App />);
+    await next();
+    await next();
+    await userEvent.click(screen.getByText('Start over'));
+    expect(bar(2).disabled).toBe(true);
+    expect(bar(3).disabled).toBe(true);
+  });
+});
+
 describe('App reset', () => {
   const resetOnce = async () => {
     await userEvent.click(screen.getByRole('button', { name: 'Reset and start over' }));
@@ -655,6 +763,40 @@ describe('App with colors picked from an image', () => {
       render(<App />);
       await pasteImage();
       expect(document.querySelectorAll('.source__colors .swatches__item--active')).toHaveLength(1);
+    });
+  });
+
+  describe('the progress bar after a new image', () => {
+    const bar = (n) => screen.getByRole('button', { name: new RegExp(`^Step ${n}:`) });
+
+    it('keeps step 2 reachable but locks step 3, which was built on the old image', async () => {
+      installFakeImage();
+      render(<App />);
+      await pasteImage();
+      await userEvent.click(screen.getByText(/^Next: Pick your colors/));
+      await userEvent.click(screen.getByText(/^Next: Your palette/));
+      expect(bar(3).disabled).toBe(false);
+
+      await userEvent.click(bar(1));
+      vi.restoreAllMocks();
+      installFakeImage([['#cc8833', 70], ['#8833cc', 30]]);
+      await pasteImage();
+
+      expect(bar(2).disabled).toBe(false);
+      expect(bar(3).disabled).toBe(true);
+    });
+
+    it('goes to step 2 from the bar and builds it on the new image', async () => {
+      installFakeImage();
+      render(<App />);
+      await pasteImage();
+      await userEvent.click(screen.getByText(/^Next: Pick your colors/));
+      await userEvent.click(bar(1));
+      vi.restoreAllMocks();
+      installFakeImage([['#cc8833', 70], ['#8833cc', 30]]);
+      await pasteImage();
+      await userEvent.click(bar(2));
+      expect(document.querySelector('.harmony .swatches__item').dataset.hex).toBe('#cc8833');
     });
   });
 
