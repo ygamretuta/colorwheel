@@ -571,6 +571,48 @@ describe('the color field on step 1', () => {
   });
 });
 
+describe('the example sections on the last step', () => {
+  const toLastStep = async () => {
+    render(<App />);
+    await userEvent.click(screen.getByText(/^Next: Pick your colors/));
+    await userEvent.click(screen.getByText(/^Next: Your palette/));
+  };
+
+  it('shows the gallery, then the 60-30-10 rule, then the four-color rule', async () => {
+    await toLastStep();
+    const titles = [...document.querySelectorAll('.examples__title')].map((el) => el.textContent);
+    expect(titles).toEqual([
+      'See it in use',
+      'The 60-30-10 rule',
+      'The four-color rule: 60-25-10-5',
+    ]);
+  });
+
+  it('keeps the 60-30-10 section as it was, next to the new one', async () => {
+    await toLastStep();
+    const three = screen.getByRole('region', { name: 'The 60-30-10 rule' });
+    const four = screen.getByRole('region', { name: 'The four-color rule' });
+    expect(three.querySelectorAll('.rule__segment')).toHaveLength(3);
+    expect(four.querySelectorAll('.rule__segment')).toHaveLength(4);
+  });
+
+  it('builds both from the final palette', async () => {
+    await toLastStep();
+    const palette = [...document.querySelectorAll<HTMLElement>('.palette .swatches__item')].map(
+      (el) => el.dataset.hex,
+    );
+    const legendHexes = (name: string) =>
+      [...screen.getByRole('region', { name }).querySelectorAll('.rule__hex')].map(
+        (el) => el.textContent,
+      );
+    // padded palettes add variants of the first color, so every chosen color must show up in both sections
+    palette.forEach((hex) => {
+      expect(legendHexes('The 60-30-10 rule')).toContain(hex);
+      expect(legendHexes('The four-color rule')).toContain(hex);
+    });
+  });
+});
+
 describe('App reset', () => {
   const resetOnce = async () => {
     await userEvent.click(screen.getByRole('button', { name: 'Reset and start over' }));

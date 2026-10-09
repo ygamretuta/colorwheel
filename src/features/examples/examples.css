@@ -75,9 +75,25 @@
   align-items: center;
   justify-content: center;
   flex-basis: 0;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.75rem; /* small enough for the 5% segment on a phone */
+  line-height: 1rem;
   font-weight: 700;
+}
+
+/* The 5% segment is only ~17px wide on a phone: the legend below the bar and the bar's accessible label
+   already give its percent, so the label inside it appears once there is room. */
+.rule__segment[data-role='highlight'] {
+  font-size: 0;
+}
+
+@media (min-width: 640px) {
+  .rule__segment,
+  .rule__segment[data-role='highlight'] {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
 }
 .rule__legend {
   display: grid;

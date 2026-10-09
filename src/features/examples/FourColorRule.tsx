@@ -1,13 +1,13 @@
 import './examples.css';
 
 import Blocks from './Blocks';
-import { CANVAS, LANDING_RECTS, POSTER_RECTS } from './layouts';
-import type { RuleRoles } from './roles';
-import { assignSixtyThirtyTen } from './roles';
+import { CANVAS, FOUR_LANDING_RECTS, FOUR_POSTER_RECTS } from './layouts';
+import type { FourColorRoles } from './roles';
+import { assignFourColor } from './roles';
 import RuleBar, { type RuleShare } from './RuleBar';
 
-/** The three colors and how much of a design each should cover. */
-function sharesFor(colors: RuleRoles): RuleShare[] {
+/** The four colors and how much of a design each should cover. */
+function sharesFor(colors: FourColorRoles): RuleShare[] {
   return [
     {
       role: 'dominant',
@@ -19,7 +19,7 @@ function sharesFor(colors: RuleRoles): RuleShare[] {
     {
       role: 'secondary',
       label: 'Secondary',
-      percent: 30,
+      percent: 25,
       color: colors.secondary,
       textColor: colors.onSecondary,
     },
@@ -30,24 +30,31 @@ function sharesFor(colors: RuleRoles): RuleShare[] {
       color: colors.accent,
       textColor: colors.onAccent,
     },
+    {
+      role: 'highlight',
+      label: 'Highlight',
+      percent: 5,
+      color: colors.highlight,
+      textColor: colors.onHighlight,
+    },
   ];
 }
 
 interface ExampleProps {
-  colors: RuleRoles;
+  colors: FourColorRoles;
 }
 
-/** A website screen: a calm background, a contrasting header and footer, one vivid button. */
+/** A website screen: a calm background, a contrasting header and footer, a vivid button, a tiny "new" badge. */
 function LandingExample({ colors }: ExampleProps) {
   return (
     <svg
-      viewBox={`0 0 ${CANVAS.width} ${CANVAS.height}`}
+      viewBox={`0 0 ${CANVAS.width.toString()} ${CANVAS.height.toString()}`}
       role="img"
-      aria-label="Website screen following the 60-30-10 rule"
+      aria-label="Website screen following the four-color rule"
       className="examples__art"
     >
       <rect {...CANVAS} fill={colors.dominant} />
-      <Blocks rects={LANDING_RECTS} colors={colors} />
+      <Blocks rects={FOUR_LANDING_RECTS} colors={colors} />
       <text x="14" y="25" fontSize="11" fontWeight="800" fill={colors.onSecondary}>
         nova
       </text>
@@ -64,13 +71,24 @@ function LandingExample({ colors }: ExampleProps) {
           opacity="0.7"
         />
       ))}
-      <text x="20" y="92" fontSize="19" fontWeight="800" fill={colors.onDominant}>
+      <text
+        x="50"
+        y="76"
+        textAnchor="middle"
+        fontSize="11"
+        fontWeight="800"
+        letterSpacing="1"
+        fill={colors.onHighlight}
+      >
+        NEW
+      </text>
+      <text x="20" y="112" fontSize="19" fontWeight="800" fill={colors.onDominant}>
         Design with
       </text>
-      <text x="20" y="114" fontSize="19" fontWeight="800" fill={colors.onDominant}>
+      <text x="20" y="134" fontSize="19" fontWeight="800" fill={colors.onDominant}>
         confidence.
       </text>
-      {[136, 146, 156].map((y, i) => (
+      {[154, 164, 174].map((y, i) => (
         <line
           key={y}
           x1="20"
@@ -85,7 +103,7 @@ function LandingExample({ colors }: ExampleProps) {
       ))}
       <text
         x="100"
-        y="190"
+        y="209"
         textAnchor="middle"
         fontSize="10"
         fontWeight="700"
@@ -94,27 +112,30 @@ function LandingExample({ colors }: ExampleProps) {
       >
         GET STARTED
       </text>
-      <text x="20" y="280" fontSize="7" fill={colors.onSecondary} opacity="0.8">
+      <text x="20" y="285" fontSize="7" fill={colors.onSecondary} opacity="0.8">
         © 2026 Nova Studio · Privacy · Terms
       </text>
     </svg>
   );
 }
 
-/** A menu poster: a banded layout with a single accent price tag and stripe. */
+/** A menu poster: a banded layout with an accent price tag and stripe, and a small highlight ribbon. */
 function PosterExample({ colors }: ExampleProps) {
   return (
     <svg
-      viewBox={`0 0 ${CANVAS.width} ${CANVAS.height}`}
+      viewBox={`0 0 ${CANVAS.width.toString()} ${CANVAS.height.toString()}`}
       role="img"
-      aria-label="Poster following the 60-30-10 rule"
+      aria-label="Poster following the four-color rule"
       className="examples__art"
     >
       <rect {...CANVAS} fill={colors.dominant} />
-      <Blocks rects={POSTER_RECTS} colors={colors} />
+      <Blocks rects={FOUR_POSTER_RECTS} colors={colors} />
+      <text x="14" y="33" fontSize="9" fontWeight="800" letterSpacing="2" fill={colors.onHighlight}>
+        NEW ROAST
+      </text>
       <text
         x="100"
-        y="62"
+        y="76"
         textAnchor="middle"
         fontSize="26"
         fontWeight="900"
@@ -124,7 +145,7 @@ function PosterExample({ colors }: ExampleProps) {
       </text>
       <text
         x="100"
-        y="92"
+        y="104"
         textAnchor="middle"
         fontSize="26"
         fontWeight="900"
@@ -134,7 +155,7 @@ function PosterExample({ colors }: ExampleProps) {
       </text>
       <text
         x="100"
-        y="140"
+        y="132"
         textAnchor="middle"
         fontSize="8"
         letterSpacing="3"
@@ -145,7 +166,7 @@ function PosterExample({ colors }: ExampleProps) {
       </text>
       <text
         x="100"
-        y="168"
+        y="156"
         textAnchor="middle"
         fontSize="17"
         fontWeight="800"
@@ -155,7 +176,7 @@ function PosterExample({ colors }: ExampleProps) {
       </text>
       <text
         x="100"
-        y="186"
+        y="174"
         textAnchor="middle"
         fontSize="8"
         fill={colors.onSecondary}
@@ -163,15 +184,15 @@ function PosterExample({ colors }: ExampleProps) {
       >
         Small batch · Medium roast
       </text>
-      <text x="16" y="236" fontSize="9" fontWeight="700" fill={colors.onDominant}>
+      <text x="16" y="222" fontSize="9" fontWeight="700" fill={colors.onDominant}>
         Open daily
       </text>
-      <text x="16" y="248" fontSize="9" fill={colors.onDominant} opacity="0.7">
+      <text x="16" y="234" fontSize="9" fill={colors.onDominant} opacity="0.7">
         7am – 5pm
       </text>
       <text
         x="160"
-        y="238"
+        y="228"
         textAnchor="middle"
         fontSize="20"
         fontWeight="900"
@@ -181,7 +202,7 @@ function PosterExample({ colors }: ExampleProps) {
       </text>
       <text
         x="160"
-        y="250"
+        y="240"
         textAnchor="middle"
         fontSize="6"
         letterSpacing="1"
@@ -193,33 +214,36 @@ function PosterExample({ colors }: ExampleProps) {
   );
 }
 
-interface SixtyThirtyTenProps {
+interface FourColorRuleProps {
   colors: string[];
 }
 
-/** Teaches and demonstrates the 60-30-10 rule using the final palette. */
-export default function SixtyThirtyTen({ colors }: SixtyThirtyTenProps) {
-  const assigned = assignSixtyThirtyTen(colors);
+/**
+ * Teaches and demonstrates the four-color rule (60-25-10-5) using the final palette. Not a standard
+ * rule like 60-30-10, but a common way to extend it: taper the shares so each color has a clear job.
+ */
+export default function FourColorRule({ colors }: FourColorRuleProps) {
+  const assigned = assignFourColor(colors);
   if (!assigned) return null;
 
   return (
-    <section className="examples rule" aria-label="The 60-30-10 rule">
-      <h3 className="examples__title">The 60-30-10 rule</h3>
+    <section className="examples rule" aria-label="The four-color rule">
+      <h3 className="examples__title">The four-color rule: 60-25-10-5</h3>
       <p className="rule__lead">
-        A balanced design is about 60% one calm color, 30% a second that contrasts with it, and 10%
-        a bold accent.
+        With four colors, taper the shares: about 60% a calm dominant, 25% a contrasting secondary,
+        10% a bold accent, and just 5% a highlight for the smallest touches.
       </p>
 
       <RuleBar shares={sharesFor(assigned)} />
 
       <ul className="examples__list rule__examples">
-        <li className="examples__item" data-example="rule-landing">
+        <li className="examples__item" data-example="four-landing">
           <figure className="examples__figure">
             <LandingExample colors={assigned} />
             <figcaption className="examples__caption">Website screen</figcaption>
           </figure>
         </li>
-        <li className="examples__item" data-example="rule-poster">
+        <li className="examples__item" data-example="four-poster">
           <figure className="examples__figure">
             <PosterExample colors={assigned} />
             <figcaption className="examples__caption">Menu poster</figcaption>

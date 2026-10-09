@@ -30,6 +30,12 @@ export interface RuleRoles {
   onAccent: string;
 }
 
+/** Roles for the four-color rule: the 60-30-10 roles, plus a rare highlight. */
+export interface FourColorRoles extends RuleRoles {
+  highlight: string;
+  onHighlight: string;
+}
+
 const MIN_COLORS = 4;
 const clamp = (value: number): number => Math.min(92, Math.max(8, value));
 
@@ -120,4 +126,21 @@ export function assignSixtyThirtyTen(colors: string[]): RuleRoles | null {
     onSecondary: readableTextColor(secondary),
     onAccent: readableTextColor(accent),
   };
+}
+
+/**
+ * Roles for the four-color rule (60-25-10-5): dominant, secondary and accent are chosen exactly as for
+ * 60-30-10, and the color left over is the highlight, the rarest of the four. Returns null for an
+ * empty palette.
+ */
+export function assignFourColor(colors: string[]): FourColorRoles | null {
+  const roles = assignSixtyThirtyTen(colors);
+  if (!roles) return null;
+
+  const used = [roles.dominant, roles.secondary, roles.accent];
+  const [highlight = roles.accent] = completePalette(colors)
+    .filter((color) => !used.includes(color))
+    .sort((a, b) => contrastRatio(b, roles.dominant) - contrastRatio(a, roles.dominant));
+
+  return { ...roles, highlight, onHighlight: readableTextColor(highlight) };
 }

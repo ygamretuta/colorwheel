@@ -6,6 +6,7 @@ import ColorPicker from '@/features/color-picker/ColorPicker';
 import type { AddResult } from '@/features/color-source/ExtractedColors';
 import ImageSource from '@/features/color-source/ImageSource';
 import ExampleGallery from '@/features/examples/ExampleGallery';
+import FourColorRule from '@/features/examples/FourColorRule';
 import SixtyThirtyTen from '@/features/examples/SixtyThirtyTen';
 import type { HarmonyId } from '@/features/harmony/harmony';
 import { generateHarmony } from '@/features/harmony/harmony';
@@ -147,6 +148,7 @@ export default function App() {
             />
             <ExampleGallery colors={palette} />
             <SixtyThirtyTen colors={palette} />
+            <FourColorRule colors={palette} />
           </>
         )}
       </section>
