@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 
 import FourColorRule from './FourColorRule';
@@ -92,5 +93,75 @@ describe('FourColorRule', () => {
     const before = container.innerHTML;
     rerender(<FourColorRule colors={['#ff8800', '#222222', '#fafafa', '#00aa88']} />);
     expect(container.innerHTML).not.toBe(before);
+  });
+});
+
+describe('FourColorRule shuffle', () => {
+  const legend = (container: HTMLElement) =>
+    [...container.querySelectorAll('.rule__hex')].map((el) => el.textContent);
+  const fills = (container: HTMLElement) =>
+    [...container.querySelectorAll('svg')].map((svg) =>
+      [...svg.querySelectorAll('rect')].map((rect) => rect.getAttribute('fill')).join(),
+    );
+  const shuffleButton = () =>
+    screen.getByRole('button', { name: 'Shuffle the colors in the four-color rule' });
+
+  it('starts on the suggested colors, with no Suggested button', () => {
+    render(<FourColorRule colors={PALETTE} />);
+    expect(screen.queryByRole('button', { name: /suggested colors/ })).toBeNull();
+  });
+
+  it('changes the legend and every example when shuffled', async () => {
+    const { container } = render(<FourColorRule colors={PALETTE} />);
+    const before = { legend: legend(container), fills: fills(container) };
+    await userEvent.click(shuffleButton());
+    expect(legend(container)).not.toEqual(before.legend);
+    expect(fills(container)).not.toEqual(before.fills);
+  });
+
+  it('keeps the legend and the examples in agreement after a shuffle', async () => {
+    const { container } = render(<FourColorRule colors={PALETTE} />);
+    await userEvent.click(shuffleButton());
+    const hexes = legend(container);
+    container.querySelectorAll('svg').forEach((svg) => {
+      const painted = new Set(
+        [...svg.querySelectorAll('rect')].map((rect) => rect.getAttribute('fill')),
+      );
+      hexes.forEach((hex) => expect(painted.has(hex)).toBe(true));
+    });
+    expect(new Set(hexes).size).toBe(hexes.length);
+    hexes.forEach((hex) => expect(PALETTE).toContain(hex));
+  });
+
+  it('goes back to the suggested colors with Suggested', async () => {
+    const { container } = render(<FourColorRule colors={PALETTE} />);
+    const before = legend(container);
+    await userEvent.click(shuffleButton());
+    await userEvent.click(screen.getByRole('button', { name: /Back to the suggested colors/ }));
+    expect(legend(container)).toEqual(before);
+    expect(screen.queryByRole('button', { name: /suggested colors/ })).toBeNull();
+  });
+
+  it('can be shuffled again and again', async () => {
+    const { container } = render(<FourColorRule colors={PALETTE} />);
+    for (let i = 0; i < 5; i += 1) {
+      const before = legend(container);
+      await userEvent.click(shuffleButton());
+      expect(legend(container)).not.toEqual(before);
+    }
+  });
+
+  it('forgets the shuffle when the palette changes', async () => {
+    const { container, rerender } = render(<FourColorRule colors={PALETTE} />);
+    await userEvent.click(shuffleButton());
+    const other = ['#222222', '#dddddd', '#cc3300', '#33aa66'];
+    rerender(<FourColorRule colors={other} />);
+    expect(legend(container)).toEqual(
+      (() => {
+        const fresh = render(<FourColorRule colors={other} />);
+        return legend(fresh.container);
+      })(),
+    );
+    expect(screen.queryByRole('button', { name: /suggested colors/ })).toBeNull();
   });
 });

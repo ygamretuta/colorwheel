@@ -3,8 +3,10 @@ import './examples.css';
 import Blocks from './Blocks';
 import { CANVAS, LANDING_RECTS, POSTER_RECTS } from './layouts';
 import type { RuleRoles } from './roles';
-import { assignSixtyThirtyTen } from './roles';
+import { assignSixtyThirtyTen, shuffleSixtyThirtyTen } from './roles';
 import RuleBar, { type RuleShare } from './RuleBar';
+import RuleHeader from './RuleHeader';
+import { useShuffledRoles } from './useShuffledRoles';
 
 /** The three colors and how much of a design each should cover. */
 function sharesFor(colors: RuleRoles): RuleShare[] {
@@ -199,12 +201,19 @@ interface SixtyThirtyTenProps {
 
 /** Teaches and demonstrates the 60-30-10 rule using the final palette. */
 export default function SixtyThirtyTen({ colors }: SixtyThirtyTenProps) {
-  const assigned = assignSixtyThirtyTen(colors);
+  const rule = useShuffledRoles(colors, assignSixtyThirtyTen(colors), shuffleSixtyThirtyTen);
+  const assigned = rule.roles;
   if (!assigned) return null;
 
   return (
     <section className="examples rule" aria-label="The 60-30-10 rule">
-      <h3 className="examples__title">The 60-30-10 rule</h3>
+      <RuleHeader
+        title="The 60-30-10 rule"
+        ruleName="60-30-10 rule"
+        isShuffled={rule.isShuffled}
+        onShuffle={rule.shuffle}
+        onReset={rule.reset}
+      />
       <p className="rule__lead">
         A balanced design is about 60% one calm color, 30% a second that contrasts with it, and 10%
         a bold accent.

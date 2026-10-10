@@ -131,3 +131,31 @@
     gap: var(--space-3);
   }
 }
+
+/* A rule section's heading row: the title, with Shuffle (and Suggested) beside it, wrapping on a phone. */
+.rule__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.rule__header .examples__title {
+  flex: 1 1 auto;
+  margin-bottom: 0;
+}
+
+.rule__actions {
+  display: flex;
+  gap: var(--space-1);
+  margin-left: auto; /* stay on the right, even when a long title pushes them to their own line */
+}
+
+.rule__button {
+  gap: var(--space-1);
+  min-height: var(--control-height);
+  padding-inline: var(--space-1);
+  color: var(--muted-foreground);
+}

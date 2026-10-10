@@ -101,9 +101,29 @@ export function assignRoles(colors: string[]): Roles | null {
   };
 }
 
+const ruleRolesFrom = (dominant: string, secondary: string, accent: string): RuleRoles => ({
+  dominant,
+  secondary,
+  accent,
+  onDominant: readableTextColor(dominant),
+  onSecondary: readableTextColor(secondary),
+  onAccent: readableTextColor(accent),
+});
+
+const fourColorRolesFrom = (
+  dominant: string,
+  secondary: string,
+  accent: string,
+  highlight: string,
+): FourColorRoles => ({
+  ...ruleRolesFrom(dominant, secondary, accent),
+  highlight,
+  onHighlight: readableTextColor(highlight),
+});
+
 /**
- * Roles for the 60-30-10 rule: the calmest color covers about 60% (dominant), a contrasting one
- * about 30% (secondary) and the most vivid just 10% (accent). Returns null for an empty palette.
+ * Roles for the 60-30-10 rule: the calmest color covers about 60% (dominant), a contrasting one about
+ * 30% (secondary) and the most vivid just 10% (accent). Returns null for an empty palette.
  */
 export function assignSixtyThirtyTen(colors: string[]): RuleRoles | null {
   const pool = completePalette(colors);
@@ -118,14 +138,7 @@ export function assignSixtyThirtyTen(colors: string[]): RuleRoles | null {
     .filter((color) => color !== dominant)
     .sort((a, b) => contrastRatio(b, dominant) - contrastRatio(a, dominant))[0];
 
-  return {
-    dominant,
-    secondary,
-    accent,
-    onDominant: readableTextColor(dominant),
-    onSecondary: readableTextColor(secondary),
-    onAccent: readableTextColor(accent),
-  };
+  return ruleRolesFrom(dominant, secondary, accent);
 }
 
 /**
@@ -142,5 +155,78 @@ export function assignFourColor(colors: string[]): FourColorRoles | null {
     .filter((color) => !used.includes(color))
     .sort((a, b) => contrastRatio(b, roles.dominant) - contrastRatio(a, roles.dominant));
 
-  return { ...roles, highlight, onHighlight: readableTextColor(highlight) };
+  return fourColorRolesFrom(roles.dominant, roles.secondary, roles.accent, highlight);
+}
+
+// --- shuffling -----------------------------------------------------------------------------------
+
+/** Dominant and secondary closer than this look like one flat color, which makes a dull example. */
+const MIN_ROLE_CONTRAST = 1.5;
+
+/** Every way to choose `count` colors from `pool` and put them in order. */
+function arrangements(pool: string[], count: number): string[][] {
+  if (count === 0) return [[]];
+  return pool.flatMap((color, index) =>
+    arrangements([...pool.slice(0, index), ...pool.slice(index + 1)], count - 1).map((rest) => [
+      color,
+      ...rest,
+    ]),
+  );
+}
+
+/**
+ * Pick a new way to hand the palette's colors to the first `count` roles, in order. It is always a
+ * different arrangement from `current` (when one exists), and arrangements whose dominant and secondary
+ * barely differ are skipped unless nothing else is left. `random` returns [0, 1).
+ */
+function shuffledOrder(
+  colors: string[],
+  count: number,
+  current: string[],
+  random: () => number,
+): string[] | null {
+  const different = arrangements(completePalette(colors), count).filter((order) =>
+    order.some((color, index) => color !== current[index]),
+  );
+  const lively = different.filter(
+    ([dominant, secondary]) => contrastRatio(dominant, secondary) >= MIN_ROLE_CONTRAST,
+  );
+  const choices = lively.length > 0 ? lively : different;
+  return choices.length > 0 ? choices[Math.floor(random() * choices.length)] : null;
+}
+
+/**
+ * A new 60-30-10 arrangement for the same palette: possibly a different color for the 60, the 30 and
+ * the 10, and the colors left out may come in. Returns `current` if there is no other arrangement.
+ */
+export function shuffleSixtyThirtyTen(
+  colors: string[],
+  current: RuleRoles,
+  random: () => number = Math.random,
+): RuleRoles {
+  const order = shuffledOrder(
+    colors,
+    3,
+    [current.dominant, current.secondary, current.accent],
+    random,
+  );
+  return order ? ruleRolesFrom(order[0], order[1], order[2]) : current;
+}
+
+/**
+ * A new 60-25-10-5 arrangement for the same palette: the same four colors in different roles. Returns
+ * `current` if there is no other arrangement.
+ */
+export function shuffleFourColor(
+  colors: string[],
+  current: FourColorRoles,
+  random: () => number = Math.random,
+): FourColorRoles {
+  const order = shuffledOrder(
+    colors,
+    4,
+    [current.dominant, current.secondary, current.accent, current.highlight],
+    random,
+  );
+  return order ? fourColorRolesFrom(order[0], order[1], order[2], order[3]) : current;
 }

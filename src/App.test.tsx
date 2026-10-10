@@ -613,6 +613,68 @@ describe('the example sections on the last step', () => {
   });
 });
 
+describe('shuffling the example colors', () => {
+  const toLastStep = async () => {
+    render(<App />);
+    await userEvent.click(screen.getByText(/^Next: Pick your colors/));
+    await userEvent.click(screen.getByText(/^Next: Your palette/));
+  };
+  const legend = (name: string) =>
+    [...screen.getByRole('region', { name }).querySelectorAll('.rule__hex')].map(
+      (el) => el.textContent,
+    );
+  const finalPalette = () =>
+    [...document.querySelectorAll<HTMLElement>('.palette .swatches__item')].map(
+      (el) => el.dataset.hex,
+    );
+
+  it('shuffles the 60-30-10 section without touching the four-color one or the palette', async () => {
+    await toLastStep();
+    const before = {
+      three: legend('The 60-30-10 rule'),
+      four: legend('The four-color rule'),
+      palette: finalPalette(),
+    };
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Shuffle the colors in the 60-30-10 rule' }),
+    );
+    expect(legend('The 60-30-10 rule')).not.toEqual(before.three);
+    expect(legend('The four-color rule')).toEqual(before.four);
+    expect(finalPalette()).toEqual(before.palette);
+  });
+
+  it('shuffles the four-color section without touching the 60-30-10 one or the palette', async () => {
+    await toLastStep();
+    const before = {
+      three: legend('The 60-30-10 rule'),
+      four: legend('The four-color rule'),
+      palette: finalPalette(),
+    };
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Shuffle the colors in the four-color rule' }),
+    );
+    expect(legend('The four-color rule')).not.toEqual(before.four);
+    expect(legend('The 60-30-10 rule')).toEqual(before.three);
+    expect(finalPalette()).toEqual(before.palette);
+  });
+
+  it('puts each section back to its suggestion on its own Suggested button', async () => {
+    await toLastStep();
+    const before = { three: legend('The 60-30-10 rule'), four: legend('The four-color rule') };
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Shuffle the colors in the 60-30-10 rule' }),
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Shuffle the colors in the four-color rule' }),
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Back to the suggested colors for the 60-30-10 rule' }),
+    );
+    expect(legend('The 60-30-10 rule')).toEqual(before.three);
+    expect(legend('The four-color rule')).not.toEqual(before.four);
+  });
+});
+
 describe('App reset', () => {
   const resetOnce = async () => {
     await userEvent.click(screen.getByRole('button', { name: 'Reset and start over' }));

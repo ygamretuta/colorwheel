@@ -3,8 +3,10 @@ import './examples.css';
 import Blocks from './Blocks';
 import { CANVAS, FOUR_LANDING_RECTS, FOUR_POSTER_RECTS } from './layouts';
 import type { FourColorRoles } from './roles';
-import { assignFourColor } from './roles';
+import { assignFourColor, shuffleFourColor } from './roles';
 import RuleBar, { type RuleShare } from './RuleBar';
+import RuleHeader from './RuleHeader';
+import { useShuffledRoles } from './useShuffledRoles';
 
 /** The four colors and how much of a design each should cover. */
 function sharesFor(colors: FourColorRoles): RuleShare[] {
@@ -223,12 +225,19 @@ interface FourColorRuleProps {
  * rule like 60-30-10, but a common way to extend it: taper the shares so each color has a clear job.
  */
 export default function FourColorRule({ colors }: FourColorRuleProps) {
-  const assigned = assignFourColor(colors);
+  const rule = useShuffledRoles(colors, assignFourColor(colors), shuffleFourColor);
+  const assigned = rule.roles;
   if (!assigned) return null;
 
   return (
     <section className="examples rule" aria-label="The four-color rule">
-      <h3 className="examples__title">The four-color rule: 60-25-10-5</h3>
+      <RuleHeader
+        title="The four-color rule: 60-25-10-5"
+        ruleName="four-color rule"
+        isShuffled={rule.isShuffled}
+        onShuffle={rule.shuffle}
+        onReset={rule.reset}
+      />
       <p className="rule__lead">
         With four colors, taper the shares: about 60% a calm dominant, 25% a contrasting secondary,
         10% a bold accent, and just 5% a highlight for the smallest touches.
