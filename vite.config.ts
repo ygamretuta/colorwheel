@@ -9,5 +9,10 @@ export default defineConfig({
   // React Compiler memoizes components automatically, so no hand-written useMemo/useCallback.
   plugins: [react(), babel({ presets: [reactCompilerPreset()] }), tailwindcss()],
   resolve: { alias: { '@': path.resolve(import.meta.dirname, 'src') } },
-  test: { environment: 'jsdom', include: ['src/**/*.test.{ts,tsx}'], globals: true },
+  test: {
+    environment: 'jsdom',
+    include: ['src/**/*.test.{ts,tsx}'],
+    globals: true,
+    setupFiles: ['src/test-setup.ts'],
+  },
 });

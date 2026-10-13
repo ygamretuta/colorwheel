@@ -54,7 +54,7 @@ describe('FourColorRule', () => {
   it('paints every example with exactly the four rule colors', () => {
     const roles = assignFourColor(PALETTE)!;
     const { container } = render(<FourColorRule colors={PALETTE} />);
-    container.querySelectorAll('svg').forEach((svg) => {
+    container.querySelectorAll('svg.examples__art').forEach((svg) => {
       const fills = new Set(
         [...svg.querySelectorAll('rect')].map((rect) => rect.getAttribute('fill')),
       );
@@ -67,7 +67,7 @@ describe('FourColorRule', () => {
   it('uses the highlight color only in small places', () => {
     const roles = assignFourColor(PALETTE)!;
     const { container } = render(<FourColorRule colors={PALETTE} />);
-    container.querySelectorAll('svg').forEach((svg) => {
+    container.querySelectorAll('svg.examples__art').forEach((svg) => {
       const highlighted = [...svg.querySelectorAll('rect')].filter(
         (rect) => rect.getAttribute('fill') === roles.highlight,
       );
@@ -100,7 +100,7 @@ describe('FourColorRule shuffle', () => {
   const legend = (container: HTMLElement) =>
     [...container.querySelectorAll('.rule__hex')].map((el) => el.textContent);
   const fills = (container: HTMLElement) =>
-    [...container.querySelectorAll('svg')].map((svg) =>
+    [...container.querySelectorAll('svg.examples__art')].map((svg) =>
       [...svg.querySelectorAll('rect')].map((rect) => rect.getAttribute('fill')).join(),
     );
   const shuffleButton = () =>
@@ -123,7 +123,7 @@ describe('FourColorRule shuffle', () => {
     const { container } = render(<FourColorRule colors={PALETTE} />);
     await userEvent.click(shuffleButton());
     const hexes = legend(container);
-    container.querySelectorAll('svg').forEach((svg) => {
+    container.querySelectorAll('svg.examples__art').forEach((svg) => {
       const painted = new Set(
         [...svg.querySelectorAll('rect')].map((rect) => rect.getAttribute('fill')),
       );
@@ -163,5 +163,70 @@ describe('FourColorRule shuffle', () => {
       })(),
     );
     expect(screen.queryByRole('button', { name: /suggested colors/ })).toBeNull();
+  });
+});
+
+describe('FourColorRule compare', () => {
+  const shuffle = () =>
+    userEvent.click(
+      screen.getByRole('button', { name: 'Shuffle the colors in the four-color rule' }),
+    );
+  const compare = () =>
+    userEvent.click(
+      screen.getByRole('button', {
+        name: 'Compare the shuffled colors with the suggested colors for the four-color rule',
+      }),
+    );
+
+  it('offers Compare only once shuffled', async () => {
+    render(<FourColorRule colors={PALETTE} />);
+    expect(screen.queryByRole('button', { name: /^Compare/ })).toBeNull();
+    await shuffle();
+    expect(screen.getByRole('button', { name: /^Compare/ })).toBeTruthy();
+  });
+
+  it('puts a slider on each example while comparing', async () => {
+    const { container } = render(<FourColorRule colors={PALETTE} />);
+    expect(screen.queryAllByRole('slider')).toHaveLength(0);
+    await shuffle();
+    await compare();
+    expect(screen.getAllByRole('slider')).toHaveLength(2);
+    // each slider holds the suggested art and the shuffled art
+    container.querySelectorAll('[role="slider"]').forEach((slider) => {
+      expect(slider.querySelectorAll('svg.examples__art')).toHaveLength(2);
+    });
+  });
+
+  it('shows the suggested colors on one side and the shuffled ones on the other', async () => {
+    const { container } = render(<FourColorRule colors={PALETTE} />);
+    await shuffle();
+    const shuffled = [...container.querySelectorAll('.rule__hex')].map((el) => el.textContent);
+    await compare();
+    const [slider] = screen.getAllByRole('slider');
+    const [first, second] = [...slider.querySelectorAll('svg.examples__art')];
+    const fillsOf = (svg: Element) =>
+      [...svg.querySelectorAll('rect')].map((rect) => rect.getAttribute('fill')).join();
+    expect(fillsOf(first)).not.toBe(fillsOf(second));
+    // the legend keeps describing the shuffled colors
+    expect([...container.querySelectorAll('.rule__hex')].map((el) => el.textContent)).toEqual(
+      shuffled,
+    );
+  });
+
+  it('goes back to plain examples when Compare is switched off', async () => {
+    render(<FourColorRule colors={PALETTE} />);
+    await shuffle();
+    await compare();
+    await compare();
+    expect(screen.queryAllByRole('slider')).toHaveLength(0);
+  });
+
+  it('goes back to plain examples on Suggested', async () => {
+    render(<FourColorRule colors={PALETTE} />);
+    await shuffle();
+    await compare();
+    await userEvent.click(screen.getByRole('button', { name: /Back to the suggested colors/ }));
+    expect(screen.queryAllByRole('slider')).toHaveLength(0);
+    expect(screen.queryByRole('button', { name: /^Compare/ })).toBeNull();
   });
 });

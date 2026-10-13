@@ -1,5 +1,7 @@
 import './examples.css';
 
+import { GlareCard } from '@/shared/ui/glare-card';
+
 import BrandCard from './BrandCard';
 import EventPoster from './EventPoster';
 import FashionLook from './FashionLook';
@@ -29,7 +31,9 @@ export default function ExampleGallery({ colors }: ExampleGalleryProps) {
         {EXAMPLES.map(({ id, caption, Art }) => (
           <li key={id} className="examples__item" data-example={id}>
             <figure className="examples__figure">
-              <Art roles={roles} />
+              <GlareCard>
+                <Art roles={roles} />
+              </GlareCard>
               <figcaption className="examples__caption">{caption}</figcaption>
             </figure>
           </li>

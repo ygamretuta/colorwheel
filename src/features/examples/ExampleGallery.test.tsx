@@ -40,4 +40,13 @@ describe('ExampleGallery', () => {
     rerender(<ExampleGallery colors={['#ff8800', '#222222', '#fafafa', '#00aa88']} />);
     expect(container.innerHTML).not.toBe(before);
   });
+
+  it('wraps every example in a glare card without changing the art', () => {
+    const { container } = render(<ExampleGallery colors={['#1d3557', '#e63946']} />);
+    const items = container.querySelectorAll('.examples__item');
+    expect(items).toHaveLength(4);
+    items.forEach((item) => {
+      expect(item.querySelector('.group\\/glare svg')).toBeTruthy();
+    });
+  });
 });

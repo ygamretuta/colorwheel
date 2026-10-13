@@ -1,5 +1,6 @@
 import './app.css';
 
+import { LazyMotion } from 'motion/react';
 import { Activity, useState } from 'react';
 
 import ColorPicker from '@/features/color-picker/ColorPicker';
@@ -31,6 +32,8 @@ import { normalizeHex, normalizeHexes } from '@/shared/color/convert';
 const DEFAULT_HEX = '#3366cc';
 const DEFAULT_HARMONY: HarmonyId = 'complementary';
 const PICK_COLORS_STEP = 1;
+
+const loadMotionFeatures = () => import('@/motion-features').then((module) => module.default);
 
 export default function App() {
   const [step, setStep] = useState(0);
@@ -103,57 +106,59 @@ export default function App() {
   const go = (delta: number) => goTo(step + delta);
 
   return (
-    <main className="app">
-      <title>{`${STEPS[step].title} · Color Wheel`}</title>
-      <h1 className="app__title">Color Wheel</h1>
-      <StepHeader
-        index={step}
-        furthest={furthest}
-        onGoTo={goTo}
-        onReset={step < STEPS.length - 1 ? restart : undefined}
-      />
+    <LazyMotion features={loadMotionFeatures}>
+      <main className="app">
+        <title>{`${STEPS[step].title} · Color Wheel`}</title>
+        <h1 className="app__title">Color Wheel</h1>
+        <StepHeader
+          index={step}
+          furthest={furthest}
+          onGoTo={goTo}
+          onReset={step < STEPS.length - 1 ? restart : undefined}
+        />
 
-      <section key={session} className="app__step" aria-live="polite">
-        {/*
+        <section key={session} className="app__step" aria-live="polite">
+          {/*
           Activity keeps step 1's state (the loaded image) while hidden, and pauses its effects.
         */}
-        <Activity mode={step === 0 ? 'visible' : 'hidden'}>
-          <ImageSource
-            hex={hex}
-            onPick={setColor}
-            onImageLoaded={startFromImage}
-            onAddAll={addImageColors}
-          />
-          <ColorPicker hex={hex} onChange={setColor} />
-        </Activity>
-        {step === 1 && (
-          <PickColorsStep
-            hex={hex}
-            harmony={harmony}
-            onHarmonyChange={changeHarmony}
-            pairing={paletteState.pairing}
-            palette={palette}
-            context={paletteState.picks.filter((color) => !paletteState.auto.includes(color))}
-            onRemoveColor={(color) => setPaletteState((state) => removeColor(state, color))}
-            onTogglePick={(color) => setPaletteState((state) => togglePick(state, color))}
-            onChoosePairing={(colors) => setPaletteState((state) => choosePairing(state, colors))}
-          />
-        )}
-        {step === 2 && (
-          <>
-            <Palette
-              colors={palette}
-              onRemove={(color) => setPaletteState((state) => removeColor(state, color))}
-              onClear={() => setPaletteState(EMPTY_PALETTE)}
+          <Activity mode={step === 0 ? 'visible' : 'hidden'}>
+            <ImageSource
+              hex={hex}
+              onPick={setColor}
+              onImageLoaded={startFromImage}
+              onAddAll={addImageColors}
             />
-            <ExampleGallery colors={palette} />
-            <SixtyThirtyTen colors={palette} />
-            <FourColorRule colors={palette} />
-          </>
-        )}
-      </section>
+            <ColorPicker hex={hex} onChange={setColor} />
+          </Activity>
+          {step === 1 && (
+            <PickColorsStep
+              hex={hex}
+              harmony={harmony}
+              onHarmonyChange={changeHarmony}
+              pairing={paletteState.pairing}
+              palette={palette}
+              context={paletteState.picks.filter((color) => !paletteState.auto.includes(color))}
+              onRemoveColor={(color) => setPaletteState((state) => removeColor(state, color))}
+              onTogglePick={(color) => setPaletteState((state) => togglePick(state, color))}
+              onChoosePairing={(colors) => setPaletteState((state) => choosePairing(state, colors))}
+            />
+          )}
+          {step === 2 && (
+            <>
+              <Palette
+                colors={palette}
+                onRemove={(color) => setPaletteState((state) => removeColor(state, color))}
+                onClear={() => setPaletteState(EMPTY_PALETTE)}
+              />
+              <ExampleGallery colors={palette} />
+              <SixtyThirtyTen colors={palette} />
+              <FourColorRule colors={palette} />
+            </>
+          )}
+        </section>
 
-      <StepNav index={step} onBack={() => go(-1)} onNext={() => go(1)} onRestart={restart} />
-    </main>
+        <StepNav index={step} onBack={() => go(-1)} onNext={() => go(1)} onRestart={restart} />
+      </main>
+    </LazyMotion>
   );
 }

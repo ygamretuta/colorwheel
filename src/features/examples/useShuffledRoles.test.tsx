@@ -84,4 +84,74 @@ describe('useShuffledRoles', () => {
     expect(result.current.roles).toBeNull();
     expect(result.current.isShuffled).toBe(false);
   });
+
+  it('offers the suggested roles next to the shuffled ones', () => {
+    const { result } = renderHook(() => useShuffledRoles(['#a'], 'suggested', shuffle));
+    act(() => {
+      result.current.shuffle();
+    });
+    expect(result.current.suggested).toBe('suggested');
+    expect(result.current.roles).not.toBe('suggested');
+  });
+
+  it('compares only once shuffled, and toggles', () => {
+    const { result } = renderHook(() => useShuffledRoles(['#a'], 'suggested', shuffle));
+    expect(result.current.isComparing).toBe(false);
+    act(() => {
+      result.current.toggleCompare();
+    });
+    expect(result.current.isComparing).toBe(false);
+
+    act(() => {
+      result.current.shuffle();
+    });
+    act(() => {
+      result.current.toggleCompare();
+    });
+    expect(result.current.isComparing).toBe(true);
+    act(() => {
+      result.current.toggleCompare();
+    });
+    expect(result.current.isComparing).toBe(false);
+  });
+
+  it('keeps comparing across further shuffles', () => {
+    const { result } = renderHook(() => useShuffledRoles(['#a'], 'suggested', shuffle));
+    act(() => {
+      result.current.shuffle();
+    });
+    act(() => {
+      result.current.toggleCompare();
+    });
+    act(() => {
+      result.current.shuffle();
+    });
+    expect(result.current.isComparing).toBe(true);
+  });
+
+  it('stops comparing on reset and when the palette changes', () => {
+    const { result, rerender } = renderHook(
+      ({ colors }) => useShuffledRoles(colors, 'suggested', shuffle),
+      { initialProps: { colors: ['#a'] } },
+    );
+    act(() => {
+      result.current.shuffle();
+    });
+    act(() => {
+      result.current.toggleCompare();
+    });
+    act(() => {
+      result.current.reset();
+    });
+    expect(result.current.isComparing).toBe(false);
+
+    act(() => {
+      result.current.shuffle();
+    });
+    act(() => {
+      result.current.toggleCompare();
+    });
+    rerender({ colors: ['#b'] });
+    expect(result.current.isComparing).toBe(false);
+  });
 });

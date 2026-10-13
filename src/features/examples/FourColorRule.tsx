@@ -1,10 +1,13 @@
 import './examples.css';
 
+import { PointerHighlight } from '@/shared/ui/pointer-highlight';
+
 import Blocks from './Blocks';
 import { CANVAS, FOUR_LANDING_RECTS, FOUR_POSTER_RECTS } from './layouts';
 import type { FourColorRoles } from './roles';
 import { assignFourColor, shuffleFourColor } from './roles';
 import RuleBar, { type RuleShare } from './RuleBar';
+import RuleFigure from './RuleFigure';
 import RuleHeader from './RuleHeader';
 import { useShuffledRoles } from './useShuffledRoles';
 
@@ -227,7 +230,8 @@ interface FourColorRuleProps {
 export default function FourColorRule({ colors }: FourColorRuleProps) {
   const rule = useShuffledRoles(colors, assignFourColor(colors), shuffleFourColor);
   const assigned = rule.roles;
-  if (!assigned) return null;
+  const suggested = rule.suggested;
+  if (!assigned || !suggested) return null;
 
   return (
     <section className="examples rule" aria-label="The four-color rule">
@@ -235,28 +239,37 @@ export default function FourColorRule({ colors }: FourColorRuleProps) {
         title="The four-color rule: 60-25-10-5"
         ruleName="four-color rule"
         isShuffled={rule.isShuffled}
+        isComparing={rule.isComparing}
         onShuffle={rule.shuffle}
+        onToggleCompare={rule.toggleCompare}
         onReset={rule.reset}
       />
       <p className="rule__lead">
-        With four colors, taper the shares: about 60% a calm dominant, 25% a contrasting secondary,
-        10% a bold accent, and just 5% a highlight for the smallest touches.
+        With four colors, taper the shares: about <PointerHighlight>60%</PointerHighlight> a calm
+        dominant, 25% a contrasting secondary, 10% a bold accent, and just 5% a highlight for the
+        smallest touches.
       </p>
 
       <RuleBar shares={sharesFor(assigned)} />
 
       <ul className="examples__list rule__examples">
         <li className="examples__item" data-example="four-landing">
-          <figure className="examples__figure">
-            <LandingExample colors={assigned} />
-            <figcaption className="examples__caption">Website screen</figcaption>
-          </figure>
+          <RuleFigure
+            caption="Website screen"
+            name="website screen"
+            isComparing={rule.isComparing}
+            suggested={<LandingExample colors={suggested} />}
+            shown={<LandingExample colors={assigned} />}
+          />
         </li>
         <li className="examples__item" data-example="four-poster">
-          <figure className="examples__figure">
-            <PosterExample colors={assigned} />
-            <figcaption className="examples__caption">Menu poster</figcaption>
-          </figure>
+          <RuleFigure
+            caption="Menu poster"
+            name="menu poster"
+            isComparing={rule.isComparing}
+            suggested={<PosterExample colors={suggested} />}
+            shown={<PosterExample colors={assigned} />}
+          />
         </li>
       </ul>
     </section>
