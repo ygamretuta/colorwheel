@@ -31,6 +31,7 @@ interface ImageSourceProps {
 export default function ImageSource({ hex, onPick, onImageLoaded, onAddAll }: ImageSourceProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const [hasImage, setHasImage] = useState(false);
   const [status, setStatus] = useState('');
   const [extracted, setExtracted] = useState<string[]>([]);
@@ -117,6 +118,12 @@ export default function ImageSource({ hex, onPick, onImageLoaded, onAddAll }: Im
     return () => document.removeEventListener('paste', onPaste);
   }, []);
 
+  function handleFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (file) void loadBlob(file);
+    event.target.value = '';
+  }
+
   function handleCanvasClick(event: React.MouseEvent<HTMLCanvasElement>) {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -128,20 +135,11 @@ export default function ImageSource({ hex, onPick, onImageLoaded, onAddAll }: Im
     <div className="source">
       <div className="source__actions">
         <Button className="source__button" onClick={() => fileRef.current?.click()}>
-          Upload or take photo
+          Upload image
         </Button>
-        <input
-          ref={fileRef}
-          className="source__file"
-          type="file"
-          accept="image/*"
-          data-testid="file"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            if (file) void loadBlob(file);
-            event.target.value = '';
-          }}
-        />
+        <Button className="source__button" onClick={() => cameraRef.current?.click()}>
+          Take photo
+        </Button>
         <Button className="source__button" onClick={captureScreen}>
           Capture screen
         </Button>
@@ -151,6 +149,25 @@ export default function ImageSource({ hex, onPick, onImageLoaded, onAddAll }: Im
           </Button>
         )}
       </div>
+      {/* Two inputs on purpose: `capture` opens the camera straight away on a phone, while a plain
+          image input lets the user choose from their library or files. */}
+      <input
+        ref={fileRef}
+        className="source__file"
+        type="file"
+        accept="image/*"
+        data-testid="file"
+        onChange={handleFile}
+      />
+      <input
+        ref={cameraRef}
+        className="source__file"
+        type="file"
+        accept="image/*"
+        capture="environment"
+        data-testid="camera"
+        onChange={handleFile}
+      />
       <div className={`source__stage${hasImage ? '' : ' source__stage--empty'}`}>
         {!hasImage && (
           <p className="source__hint">Choose a source, or paste a screenshot (Ctrl/⌘+V).</p>

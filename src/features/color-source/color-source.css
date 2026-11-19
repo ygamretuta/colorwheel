@@ -7,9 +7,9 @@
   gap: var(--space-1);
   margin-bottom: var(--space-2);
 }
-.source__actions > :nth-child(n + 4) {
+.source__actions > :last-child:nth-child(odd) {
   grid-column: 1 / -1;
-} /* Eyedropper (when supported) gets its own row; the hidden file input is child 2 */
+} /* a lone last button (no Eyedropper here) takes the whole row */
 .source__button {
   min-height: var(--control-height);
 }
